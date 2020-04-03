@@ -1,0 +1,65 @@
+ros:
+  # frame which input cloud is (transformed into and) processed, in this case it should be colocated with base_footprint and aligned with gravity
+  fixed_frame_id: map
+  # doesnt work rn
+  pub_viz: True
+preanalysis:
+  # Set if downsample active
+  dsFlag: True
+  # Set downsample resolution
+  dsResolution: 0.01
+  # Normal estimation - find N neareast neighbors (:=0) - find points within distance (very slow) (:=1)
+  neNeighMethod: 0
+  neSearchNeighbours: 24
+  neSearchRadius: 0.2
+  # Ghost point filter active?
+  gpFlag: False
+  # Ghost point filter angle in degress
+  # gpAngle: 10.0
+  gpAngle: 25.0
+  #gpAngle: 45.0
+  # Point normal filter active?
+  pfActive: False
+  # Point normal filter angle in degress
+  pfAngle: 20.0
+  # Floor seperation active?
+  fsActive: False
+  # Floor seperation angle in degrees
+  fsAngle: 30.0
+  # Floor seperation distance
+  fsRange: 0.05
+  # Set the position of the LIDAR (required for floor separation)
+  rob_x: 0.00
+  rob_y: 0.00
+  rob_z: 0.00
+  # Rotate pointcloud around z-axis
+  robAngle: 0
+  # Downsample method - Standard: flase - Experimental version: true
+  dsMethod: False
+  # Process ghost point filter and floor separation in separate steps
+  neMethod: 0
+# 0 = Region Growing (recommended), 1 = Voxel SAC, 2 = Split & Merge
+segmentationmode: 0
+regiongrowing:
+  # Minimum cluster size 
+  minClustSize: 30
+  # Number of neighbors
+  noNeigh: 24
+  # Smoothness flag (true: compare to seed point false: compare to neighboring point) 
+  smoothFlag: False
+  # Smoothness threshold 
+  smoothThresh: 50.0 
+  # Residual flag (true: compare to seed point false: compare to neighboring point) 
+  resFlag: True
+  # Residual distance 
+  resThresh: 0.08 
+  # Curvature flag 
+  curvFlag: False
+  # Curvature threshold (max)
+  curvThresh: 0.1
+  # Update seed point during growing 
+  updateFlag: True
+  # Update pointwise 
+  pointUpdateFlag: True
+  # If not pointwise, update every: 
+  updateInterval: 100

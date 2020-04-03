@@ -1,0 +1,80 @@
+<launch>
+
+    <arg name="input_cloud_topic" default="cloud"/>
+    <arg name="fixed_frame_id" default="map"/>
+    <!-- <arg name="pub_viz" default="true"/> -->
+    <arg name="preanalysis/dsFlag" default="true"/>
+    <arg name="preanalysis/dsResolution" default="0.01"/>
+    <arg name="preanalysis/neNeighMethod" default="0"/>
+    <arg name="preanalysis/neSearchNeighbours" default="24"/>
+    <arg name="preanalysis/neSearchRadius" default="0.2"/>
+    <arg name="preanalysis/gpFlag" default="false"/>
+    <arg name="preanalysis/gpAngle" default="25.0"/>
+    <arg name="preanalysis/pfActive" default="false"/>
+    <arg name="preanalysis/pfAngle" default="20.0"/>
+    <arg name="preanalysis/fsActive" default="false"/>
+    <arg name="preanalysis/fsAngle" default="30.0"/>
+    <arg name="preanalysis/fsRange" default="0.05"/>
+    <arg name="preanalysis/rob_x" default="0.0"/>
+    <arg name="preanalysis/rob_y" default="0.0"/>
+    <arg name="preanalysis/rob_z" default="0.0"/>
+    <arg name="preanalysis/robAngle" default="0.0"/>
+    <arg name="preanalysis/dsMethod" default="false"/>
+    <arg name="preanalysis/neMethod" default="0"/>
+    <arg name="segmentationmode" default="0"/>
+    <arg name="regiongrowing/minClustSize" default="30"/>
+    <arg name="regiongrowing/noNeigh" default="24"/>
+    <arg name="regiongrowing/smoothFlag" default="false"/>
+    <arg name="regiongrowing/smoothThresh" default="50.0"/>
+    <arg name="regiongrowing/resFlag" default="true"/>
+    <arg name="regiongrowing/resThresh" default="0.08"/>
+    <arg name="regiongrowing/curvFlag" default="false"/>
+    <arg name="regiongrowing/curvThresh" default="0.1"/>
+    <arg name="regiongrowing/updateFlag" default="true"/>
+    <arg name="regiongrowing/pointUpdateFlag" default="true"/>
+    <arg name="regiongrowing/updateInterval" default="100"/>
+    <arg name="costmap/normal_gain" default="4.0"/>
+    <arg name="costmap/curv_gain" default="30.0"/>
+    
+    <node pkg="curvy_terrain_mapper" type="curvy_terrain_mapper_node" name="curvy_terrain_mapper" output="screen" respawn="true">
+        <remap from="~input_cloud" to="$(arg input_cloud_topic)"/>
+        <param name="~fixed_frame_id" value="$(arg fixed_frame_id)"/>
+        <!-- <param name="~pub_viz" value="true"/> -->
+        <param name="~preanalysis/dsFlag" value="$(arg preanalysis/dsFlag)"/>
+        <param name="~preanalysis/dsResolution" value="$(arg preanalysis/dsResolution)"/>
+        <param name="~preanalysis/neNeighMethod" value="$(arg preanalysis/neNeighMethod)"/>
+        <param name="~preanalysis/neSearchNeighbours" value="$(arg preanalysis/neSearchNeighbours)"/>
+        <param name="~preanalysis/neSearchRadius" value="$(arg preanalysis/neSearchRadius)"/>
+        <param name="~preanalysis/gpFlag" value="$(arg preanalysis/gpFlag)"/>
+        <param name="~preanalysis/gpAngle" value="$(arg preanalysis/gpAngle)"/>
+        <param name="~preanalysis/pfActive" value="$(arg preanalysis/pfActive)"/>
+        <param name="~preanalysis/pfAngle" value="$(arg preanalysis/pfAngle)"/>
+        <param name="~preanalysis/fsActive" value="$(arg preanalysis/fsActive)"/>
+        <param name="~preanalysis/fsAngle" value="$(arg preanalysis/fsAngle)"/>
+        <param name="~preanalysis/fsRange" value="$(arg preanalysis/fsRange)"/>
+        <param name="~preanalysis/rob_x" value="$(arg preanalysis/rob_x)"/>
+        <param name="~preanalysis/rob_y" value="$(arg preanalysis/rob_y)"/>
+        <param name="~preanalysis/rob_z" value="$(arg preanalysis/rob_z)"/>
+        <param name="~preanalysis/robAngle" value="$(arg preanalysis/robAngle)"/>
+        <param name="~preanalysis/dsMethod" value="$(arg preanalysis/dsMethod)"/>
+        <param name="~preanalysis/neMethod" value="$(arg preanalysis/neMethod)"/>
+        <param name="~segmentationmode" value="$(arg segmentationmode)"/>
+        <param name="~regiongrowing/minClustSize" value="$(arg regiongrowing/minClustSize)"/>
+        <param name="~regiongrowing/noNeigh" value="$(arg regiongrowing/noNeigh)"/>
+        <param name="~regiongrowing/smoothFlag" value="$(arg regiongrowing/smoothFlag)"/>
+        <param name="~regiongrowing/smoothThresh" value="$(arg regiongrowing/smoothThresh)"/>
+        <param name="~regiongrowing/resFlag" value="$(arg regiongrowing/resFlag)"/>
+        <param name="~regiongrowing/resThresh" value="$(arg regiongrowing/resThresh)"/>
+        <param name="~regiongrowing/curvFlag" value="$(arg regiongrowing/curvFlag)"/>
+        <param name="~regiongrowing/curvThresh" value="$(arg regiongrowing/curvThresh)"/>
+        <param name="~regiongrowing/updateFlag" value="$(arg regiongrowing/updateFlag)"/>
+        <param name="~regiongrowing/pointUpdateFlag" value="$(arg regiongrowing/pointUpdateFlag)"/>
+        <param name="~regiongrowing/updateInterval" value="$(arg regiongrowing/updateInterval)"/>
+        <param name="~costmap/normal_gain" value="$(arg costmap/normal_gain)"/>
+        <param name="~costmap/curv_gain" value="$(arg costmap/curv_gain)"/>
+    </node>
+
+    <node pkg="rviz" type="rviz" name="rviz"
+    args="-d /home/mike/.rviz/curvy_terrain_mapper.rviz"/>
+
+</launch>

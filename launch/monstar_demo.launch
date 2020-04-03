@@ -1,0 +1,69 @@
+<launch>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="T_map_imuuplink"
+        args="0 0 0 -1.57 0 3.14 map imu_up_link"/>
+
+    <include file="$(find microstrain_mips)/launch/microstrain.launch">
+        <arg name="port" value="/dev/ttyACM0"/>
+        <arg name="imu_frame_id" value="imu_link"/>
+    </include>
+
+    <node pkg="topic_tools" type="relay" name="R_imu"
+        args="gx5/imu/data imu_raw"/>
+
+    <node pkg="imu2tf" type="imu2tf_node" name="T_imuuplink_imulink"/>
+    
+    <node pkg="tf2_ros" type="static_transform_publisher" name="T_imulink_baselink"
+        args="0 0 0 -1.57 0 3.14 imu_link base_link"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="T_baselink_footprint"
+        args="0 0 -1.0 0 0 0 base_link base_footprint"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="T_baselink_cameralink"
+        args="0.08 0 0.07 0 0.6 -1.57 base_link royale_camera_link"/>
+
+    <include file="$(find royale_in_ros)/launch/camera_driver.launch">
+    </include>
+
+    <node pkg="topic_tools" type="relay" name="R_cloud"
+        args="royale_camera/point_cloud cloud"/>
+
+    <include file="$(find curvy_terrain_mapper)/launch/curvy_terrain_mapper.launch">
+        <arg name="input_cloud_topic" value="cloud"/>
+        <arg name="fixed_frame_id" value="base_link"/>
+        <!-- <arg name="pub_viz" value="true"/> -->
+        <!-- <arg name="preanalysis/dsFlag" value="preanalysis/dsFlag"/> -->
+        <!-- <arg name="preanalysis/dsResolution" value="preanalysis/dsResolution"/> -->
+        <!-- <arg name="preanalysis/neNeighMethod" value="preanalysis/neNeighMethod"/> -->
+        <!-- <arg name="preanalysis/neSearchNeighbours" value="preanalysis/neSearchNeighbours"/> -->
+        <!-- <arg name="preanalysis/neSearchRadius" value="preanalysis/neSearchRadius"/> -->
+        <!-- <arg name="preanalysis/gpFlag" value="preanalysis/gpFlag"/> -->
+        <!-- <arg name="preanalysis/gpAngle" value="preanalysis/gpAngle"/> -->
+        <!-- <arg name="preanalysis/pfActive" value="preanalysis/pfActive"/> -->
+        <!-- <arg name="preanalysis/pfAngle" value="preanalysis/pfAngle"/> -->
+        <!-- <arg name="preanalysis/fsActive" value="preanalysis/fsActive"/> -->
+        <!-- <arg name="preanalysis/fsAngle" value="preanalysis/fsAngle"/> -->
+        <!-- <arg name="preanalysis/fsRange" value="preanalysis/fsRange"/> -->
+        <!-- <arg name="preanalysis/rob_x" value="preanalysis/rob_x"/> -->
+        <!-- <arg name="preanalysis/rob_y" value="preanalysis/rob_y"/> -->
+        <!-- <arg name="preanalysis/rob_z" value="preanalysis/rob_z"/> -->
+        <!-- <arg name="preanalysis/robAngle" value="preanalysis/robAngle"/> -->
+        <!-- <arg name="preanalysis/dsMethod" value="preanalysis/dsMethod"/> -->
+        <!-- <arg name="preanalysis/neMethod" value="preanalysis/neMethod"/> -->
+        <!-- <arg name="segmentationmode" value="segmentationmode"/> -->
+        <!-- <arg name="regiongrowing/minClustSize" value="regiongrowing/minClustSize"/> -->
+        <!-- <arg name="regiongrowing/noNeigh" value="regiongrowing/noNeigh"/> -->
+        <!-- <arg name="regiongrowing/smoothFlag" value="regiongrowing/smoothFlag"/> -->
+        <!-- <arg name="regiongrowing/smoothThresh" value="regiongrowing/smoothThresh"/> -->
+        <!-- <arg name="regiongrowing/resFlag" value="regiongrowing/resFlag"/> -->
+        <!-- <arg name="regiongrowing/resThresh" value="regiongrowing/resThresh"/> -->
+        <!-- <arg name="regiongrowing/curvFlag" value="regiongrowing/curvFlag"/> -->
+        <!-- <arg name="regiongrowing/curvThresh" value="regiongrowing/curvThresh"/> -->
+        <!-- <arg name="regiongrowing/updateFlag" value="regiongrowing/updateFlag"/> -->
+        <!-- <arg name="regiongrowing/pointUpdateFlag" value="regiongrowing/pointUpdateFlag"/> -->
+        <!-- <arg name="regiongrowing/updateInterval" value="regiongrowing/updateInterval"/> -->
+        <!-- <arg name="costmap/normal_gain" value="costmap/normal_gain"/> -->
+        <!-- <arg name="costmap/curv_gain" value="costmap/curv_gain"/> -->
+    </include>
+
+</launch>
