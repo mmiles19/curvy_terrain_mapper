@@ -45,7 +45,7 @@ public:
     void normalEstimation();
     void ghostPointFilter();
     void floorExtraction();
-    void run(PointCloudT::Ptr& input, NormalCloud::Ptr& normal, PointCloudC& colMap, PointCloudT& floorPoints, Eigen::Matrix4d& transformCloud);
+    void run(PointCloudT::Ptr& input, NormalCloud::Ptr& normal, PointCloudC& colMap, PointCloudT::Ptr& floorPoints, NormalCloud::Ptr& floorNormals, Eigen::Matrix4d& transformCloud);
 
     void loadConfig(CurvyTerrainMapperParams::PreanalysisParams);
 
@@ -132,8 +132,8 @@ public:
     PointCloudT::Ptr inputCloud;
     PointCloudT::Ptr pc;
     NormalCloud::Ptr normal_cloud;
-    PointCloudT floorPC;
-    NormalCloud floorNormal;
+    PointCloudT::Ptr floorPC;
+    NormalCloud::Ptr floorNormal;
 
 
     double rob_x;

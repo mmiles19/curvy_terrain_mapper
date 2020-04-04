@@ -20,7 +20,7 @@
         args="0 0 -1.0 0 0 0 base_link base_footprint"/>
 
     <node pkg="tf2_ros" type="static_transform_publisher" name="T_baselink_cameralink"
-        args="0.08 0 0.07 0 0.6 -1.57 base_link royale_camera_link"/>
+        args="0.08 0 0.07 0 0 -1.57 base_link royale_camera_link"/>
 
     <include file="$(find royale_in_ros)/launch/camera_driver.launch">
     </include>

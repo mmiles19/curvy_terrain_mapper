@@ -73,16 +73,19 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
 // Starting preanalysis //
 
     ROS_INFO("---");
-    ROS_INFO("Received point cloud with %d points",mainCloud->width);
+    ROS_INFO("Received point cloud with %d points",mainCloud->width*mainCloud->height);
 
 	ROS_INFO("Starting preanalysis");
     double preAS = pcl::getTime();
 
     Preanalysis pre;
     pre.loadConfig(params_.preanalysis);
-    NormalCloud::Ptr normalCloud;
-    normalCloud.reset(new NormalCloud);
-    PointCloudT floorPC;
+    NormalCloud::Ptr mainNormals;
+    mainNormals.reset(new NormalCloud);
+    PointCloudT::Ptr floorCloud;
+	floorCloud.reset (new PointCloudT);
+    NormalCloud::Ptr floorNormals;
+    floorNormals.reset(new NormalCloud);
     PointCloudC coloredNormalCloud;
 
     Eigen::Matrix4d T_fixed_input_mat = Eigen::Matrix4d::Identity();
@@ -92,17 +95,17 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
 
     // transform mainCloud (default identity), 
     // downsample (default true, 0.01m res), 
-    // normal estimation and init normalCloud with output, 
+    // normal estimation and init mainNormals with output, 
     // filter ghost/shadow points (nonexistent points at discontinuities due to sensor noise), 
-    // extract floor and init floorPC with output, 
+    // extract floor and init floorCloud with output, 
     // init prepNorMap with xyz's of mainCloud points and rgb's of mainCloud normals
-    pre.run(mainCloud, normalCloud, coloredNormalCloud, floorPC, T_fixed_input_mat);
+    pre.run(mainCloud, mainNormals, coloredNormalCloud, floorCloud, floorNormals, T_fixed_input_mat);
     double preAE = pcl::getTime();
     ROS_INFO("Preanalysis took: %f",preAE-preAS);
 
     pubMainCloud(&main_cloud_pub_, *mainCloud, params_.fixed_frame_id, stamp_);
-    pubNormalCloud(&normal_cloud_pub_, *mainCloud, *normalCloud, params_.fixed_frame_id, stamp_);
-    pubCurvature(&curvature_pub_, *mainCloud, *normalCloud, params_.fixed_frame_id, stamp_);
+    pubNormalCloud(&normal_cloud_pub_, *mainCloud, *mainNormals, params_.fixed_frame_id, stamp_);
+    pubCurvature(&curvature_pub_, *mainCloud, *mainNormals, params_.fixed_frame_id, stamp_);
     
 // Starting segmentation //
 
@@ -110,6 +113,10 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
     double segS = pcl::getTime();
     regions segRegions;
     int segMode = params_.segmentationmode;
+    // PointCloudT::Ptr segCloud = mainCloud;
+    // NormalCloud::Ptr segNormals = mainNormals; 
+    // PointCloudT::Ptr segCloud = floorCloud;
+    // NormalCloud::Ptr segNormals = floorNormals;
     switch (segMode) 
     {
         case 0:
@@ -117,31 +124,31 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
             ROS_INFO("Using Region Growing algorithm");
             RegionGrowing reGrow;
             reGrow.loadConfig(params_.regiongrowing);
-            reGrow.setInputCloud(mainCloud);
-            reGrow.setNormalCloud(normalCloud);
+            reGrow.setInputCloud(floorCloud);
+            reGrow.setNormalCloud(floorNormals);
             // extract and init segRegions with smooth regions
             reGrow.run(segRegions);
             break;
         }
-        case 1:
-        {
-            ROS_INFO("Using Voxel SAC algorithm");
-            voxSAC voxelSAC;
-            voxelSAC.setInputCloud(mainCloud);
-            voxelSAC.setNormalCloud(normalCloud);
-            voxelSAC.run(segRegions);
-            break;
-        }
-        case 2:
-        {
-            ROS_INFO("Using Split & Merge algorithm");
-            splitMerge sam;
-            sam.setInputCloud(mainCloud);
-            sam.setNormalCloud(normalCloud);
-            sam.splitProcess();
-            sam.mergeProcess(segRegions);
-            break;
-        }
+        // case 1:
+        // {
+        //     ROS_INFO("Using Voxel SAC algorithm");
+        //     voxSAC voxelSAC;
+        //     voxelSAC.setInputCloud(segCloud);
+        //     voxelSAC.setNormalCloud(segNormals);
+        //     voxelSAC.run(segRegions);
+        //     break;
+        // }
+        // case 2:
+        // {
+        //     ROS_INFO("Using Split & Merge algorithm");
+        //     splitMerge sam;
+        //     sam.setInputCloud(segCloud);
+        //     sam.setNormalCloud(segNormals);
+        //     sam.splitProcess();
+        //     sam.mergeProcess(segRegions);
+        //     break;
+        // }
     }
     double segE = pcl::getTime();
     ROS_INFO("Segmentation found %d regions",segRegions.size());
@@ -149,176 +156,47 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
 
     pubRegions(&seg_regions_pub_,segRegions, params_.fixed_frame_id, stamp_);
 
-    // generate 2D projected curvature map
+    if (segRegions.size()==0)
+    {
+        busy = false;
+        return;
+    }
+
+    segmentPatch largestPatch;
+    for (uint i=0; i<segRegions.size(); i++)
+    {
+        if (segRegions.at(i).segmentCloud.size() > largestPatch.segmentCloud.size())
+        {
+            largestPatch = segRegions.at(i);
+        }
+    }
+    ROS_INFO("Largest patch has %d points",largestPatch.segmentCloud.size());
+
+    // init costmap
+    ROS_INFO("Starting costmap calculation");
+    double cmS = pcl::getTime();
     float map_min_x = 0.f, map_max_x = 4.f, map_min_y = -1.5f, map_max_y = 1.5f, resolution = 0.05;
     uint map_size_x = (map_max_x-map_min_x)/resolution, map_size_y = (map_max_y-map_min_y)/resolution;
 
-    // std_msgs::Float64MultiArray costmap_msg; // should of used a sensor_msgs::Image
-    // costmap_msg.layout.dim.push_back(std_msgs::MultiArrayDimension());
-    // costmap_msg.layout.dim[0].size = map_size_x;
-    // costmap_msg.layout.dim[0].stride = map_size_x*map_size_y;
-    // costmap_msg.layout.dim[0].label = "x";
-    // costmap_msg.layout.dim.push_back(std_msgs::MultiArrayDimension());
-    // costmap_msg.layout.dim[1].size = map_size_y;
-    // costmap_msg.layout.dim[1].stride = map_size_y;
-    // costmap_msg.layout.dim[1].label = "y";
-    // costmap_msg.data.clear();
-
-    // assert(mainCloud->size() == normalCloud->size());
-    // std::vector<double> costmap[map_size_x*map_size_y];
-    // float curvature_gain = 20;
-    // float normal_gain = 5;
-    // Eigen::Vector3f upVec(0,0,1);
-    // double min_cost = INFINITY, max_cost = -INFINITY;
-    // for(size_t pointIdx = 0; pointIdx < normalCloud->size(); pointIdx++)
-    // {
-    //     for (uint d1=0; d1<map_size_y; d1++)
-    //     {
-    //         for (uint d0=0; d0<map_size_x; d0++)
-    //         {
-    //             PointT thisPt = mainCloud->at(pointIdx);
-    //             if (thisPt.x > d0*resolution+map_min_x && thisPt.x < (d0+1)*resolution+map_min_x)
-    //             {
-    //                 if (thisPt.y > d1*resolution+map_min_y && thisPt.y < (d1+1)*resolution+map_min_y)
-    //                 {
-    //                     Normal thisNm = normalCloud->at(pointIdx);
-    //                     Eigen::Vector3f nmVec(thisNm.normal_x, thisNm.normal_y, thisNm.normal_z);
-    //                     double cost = 0;
-    //                     cost += fabs(normal_gain*(1/upVec.dot(nmVec) - 1));
-    //                     cost += fabs(curvature_gain*thisNm.curvature);
-    //                     // cost += fabs(curvature_gain*(cbrt(thisNm.curvature)));
-    //                     if (cost > max_cost) { max_cost = cost; }
-    //                     if (cost < min_cost) { min_cost = cost; }
-    //                     costmap[d1*map_size_x + d0].push_back(cost);
-    //                     // ROS_INFO("cost %f", costmap[d1*map_size_x + d0][0]);
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-    // // ROS_INFO("Costmap min %f max %f", min_cost, max_cost);
-    // for(uint i=0; i < map_size_x*map_size_y; i++)
-    // {
-    //     double cost = 0;
-    //     for (uint j=0; j<costmap[i].size(); j++)
-    //     {
-    //         cost += costmap[i][j];
-    //     }
-    //     cost = cost/(double)costmap[i].size();
-    //     // ROS_INFO("cost %f sum %f size %f",cost,(double)std::accumulate(costmap[i].begin(), costmap[i].end(), 0),(double)costmap[i].size());
-    //     if (costmap[i].size()>0)
-    //         costmap_msg.data.push_back(cost);
-    //     else
-    //         costmap_msg.data.push_back((double)0.0);
-    // }
-
-    // // pub costmap (2d)
-    // {
-    //     // auto getInterceptInAnotherRange = [](auto x, auto Xstart, auto Xend, auto Ystart, auto Yend) { return (Yend-Ystart)/(Xend-Xstart)*x + (Ystart*Xend-Yend*Xstart)/(Xend-Xstart); };
-    //     visualization_msgs::Marker cost_msg;
-    //     cost_msg.header.frame_id = params_.fixed_frame_id;
-    //     cost_msg.header.stamp = stamp_;
-    //     cost_msg.type = cost_msg.POINTS;
-    //     cost_msg.action = cost_msg.ADD;
-    //     cost_msg.scale.x = resolution;
-    //     cost_msg.scale.y = resolution;
-    //     cost_msg.scale.z = resolution;
-    //     cost_msg.lifetime = ros::Duration(0.0);
-    //     for (uint d1=0; d1<map_size_y; d1++)
-    //     {
-    //         for (uint d0=0; d0<map_size_x; d0++)
-    //         {
-    //             geometry_msgs::Point pt_msg;
-    //             pt_msg.x = d0*resolution+map_min_x;
-    //             pt_msg.y = d1*resolution+map_min_y;
-    //             pt_msg.z = 0;
-    //             cost_msg.points.push_back(pt_msg);
-
-    //             double cost = costmap_msg.data[d0+d1*map_size_x];
-    //             // ROS_INFO("Cost %f x %f y %f", costmap_msg.data[d0+d1*map_size_x], d0*resolution+map_min_x, d1*resolution+map_min_y);
-    //             max_cost  = 10.0;
-    //             cost = std::min(max_cost, std::max(min_cost, cost));
-    //             double min_color_val = 0.f;
-    //             double max_color_val = 1.f;
-    //             auto a=min_cost, b=max_cost, c=min_color_val, d=max_color_val;
-    //             double color_ratio = (d-c)/(b-a)*cost + (c*b-d*a)/(b-a);
-    //             std_msgs::ColorRGBA rgb_msg;
-    //             RGBColor color = getRGBColor(color_ratio); 
-    //             rgb_msg.r = color.r;
-    //             rgb_msg.g = color.g;
-    //             rgb_msg.b = color.b;
-    //             rgb_msg.a = 0.1;
-    //             cost_msg.colors.push_back(rgb_msg);
-    //         }
-    //     }
-    //     costmap_pub_.publish(cost_msg);
-    //     ros::spinOnce();
-    // }
-
-    // // pub costmap 3d projection
-    // {
-    //     float scale = 0.005;
-    //     visualization_msgs::Marker cost_msg;
-    //     cost_msg.header.frame_id = params_.fixed_frame_id;
-    //     cost_msg.header.stamp = stamp_;
-    //     cost_msg.type = cost_msg.POINTS;
-    //     cost_msg.action = cost_msg.ADD;
-    //     cost_msg.scale.x = scale;
-    //     cost_msg.scale.y = scale;
-    //     cost_msg.scale.z = scale;
-    //     cost_msg.lifetime = ros::Duration(0.0);
-    //     for(size_t pointIdx = 0; pointIdx < mainCloud->size(); pointIdx++)
-    //     {
-    //         for (uint d1=0; d1<map_size_y; d1++)
-    //         {
-    //             for (uint d0=0; d0<map_size_x; d0++)
-    //             {
-    //                 PointT thisPt = mainCloud->at(pointIdx);
-    //                 if (thisPt.x > d0*resolution+map_min_x && thisPt.x < (d0+1)*resolution+map_min_x)
-    //                 {
-    //                     if (thisPt.y > d1*resolution+map_min_y && thisPt.y < (d1+1)*resolution+map_min_y)
-    //                     {
-    //                         geometry_msgs::Point pt_msg;
-    //                         pt_msg.x = thisPt.x;
-    //                         pt_msg.y = thisPt.y;
-    //                         pt_msg.z = thisPt.z;
-    //                         cost_msg.points.push_back(pt_msg);
-
-    //                         double cost = costmap_msg.data[d0+d1*map_size_x];
-    //                         // ROS_INFO("Cost %f x %f y %f", costmap_msg.data[d0+d1*map_size_x], d0*resolution+map_min_x, d1*resolution+map_min_y);
-    //                         max_cost  = 10.0;
-    //                         cost = std::min(max_cost, std::max(min_cost, cost));
-    //                         double min_color_val = 0.f;
-    //                         double max_color_val = 1.f;
-    //                         auto a=min_cost, b=max_cost, c=min_color_val, d=max_color_val;
-    //                         double color_ratio = (d-c)/(b-a)*cost + (c*b-d*a)/(b-a);
-    //                         std_msgs::ColorRGBA rgb_msg;
-    //                         RGBColor color = getRGBColor(color_ratio); 
-    //                         rgb_msg.r = color.r;
-    //                         rgb_msg.g = color.g;
-    //                         rgb_msg.b = color.b;
-    //                         rgb_msg.a = 1.;
-    //                         cost_msg.colors.push_back(rgb_msg);
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     costmap3d_pub_.publish(cost_msg);
-    //     ros::spinOnce();
-    // }
-
-    // instead of binning, just calc cost of each point
-    std::vector<double> costs(mainCloud->size());
+    // calc cost of each point
     Eigen::Vector3f upVec(0,0,1);
     double min_cost = INFINITY, max_cost = -INFINITY;
     float curvature_gain = params_.costmap.curv_gain;
     float normal_gain = params_.costmap.normal_gain;
+    // PointCloudT::Ptr costCloud = mainCloud;
+    // NormalCloud::Ptr costNormals = mainNormals; 
+    // PointCloudT::Ptr costCloud = floorCloud;
+    // NormalCloud::Ptr costNormals = floorNormals; 
+    PointCloudT::Ptr costCloud; costCloud.reset(new PointCloudT(largestPatch.segmentCloud));
+    NormalCloud::Ptr costNormals; costNormals.reset(new NormalCloud(largestPatch.normalCloud));
+    ROS_INFO("costCloud has %d points",costNormals->size());
+    // assert(costCloud->size()==costNormals->size());
+    std::vector<double> costs(costCloud->size());
     {
-        for(size_t pointIdx = 0; pointIdx < mainCloud->size(); pointIdx++)
+        for(size_t pointIdx = 0; pointIdx < costCloud->size(); pointIdx++)
         {
-            PointT thisPt = mainCloud->at(pointIdx);
-            Normal thisNm = normalCloud->at(pointIdx);
+            PointT thisPt = costCloud->at(pointIdx);
+            Normal thisNm = costNormals->at(pointIdx);
             Eigen::Vector3f nmVec(thisNm.normal_x, thisNm.normal_y, thisNm.normal_z);
 
             // calc cost
@@ -331,6 +209,9 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
             costs[pointIdx] = cost;
         }
     }
+    double cmE = pcl::getTime();
+    ROS_INFO("Costmap gen took: %f s. Publishing costmap(s)...",cmE-cmS);
+    // pub 3d costmap
     {
         float scale = 0.01;
         visualization_msgs::Marker cost_msg;
@@ -348,9 +229,9 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
         double max_color_val = 1.f;
         auto a=min_cost, b=max_cost, c=min_color_val, d=max_color_val;
 
-        for(size_t pointIdx = 0; pointIdx < mainCloud->size(); pointIdx++)
+        for(size_t pointIdx = 0; pointIdx < costCloud->size(); pointIdx++)
         {
-            PointT thisPt = mainCloud->at(pointIdx);
+            PointT thisPt = costCloud->at(pointIdx);
 
             // calc color for viz
             double cost = std::min(max_cost, std::max(min_cost, costs[pointIdx]));
@@ -375,6 +256,7 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
         costmap3d_pub_.publish(cost_msg);
         ros::spinOnce();
     }
+    // pub 2d costmap
     {
         float scale = 0.01;
         visualization_msgs::Marker cost_msg;
@@ -392,9 +274,9 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
         double max_color_val = 1.f;
         auto a=min_cost, b=max_cost, c=min_color_val, d=max_color_val;
 
-        for(size_t pointIdx = 0; pointIdx < mainCloud->size(); pointIdx++)
+        for(size_t pointIdx = 0; pointIdx < costCloud->size(); pointIdx++)
         {
-            PointT thisPt = mainCloud->at(pointIdx);
+            PointT thisPt = costCloud->at(pointIdx);
 
             // calc color for viz
             double cost = std::min(max_cost, std::max(min_cost, costs[pointIdx]));

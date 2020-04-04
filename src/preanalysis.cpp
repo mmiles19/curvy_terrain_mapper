@@ -44,8 +44,10 @@ Preanalysis::Preanalysis()
     // Process ghost point filter and floor separation in separate steps
 	neMethod = 0;
 
-    inputCloud.reset (new PointCloudT);
-    normal_cloud.reset (new NormalCloud);
+    // inputCloud.reset (new PointCloudT);
+    // normal_cloud.reset (new NormalCloud);
+    // floorPC.reset (new PointCloudT);
+    // floorNormal.reset (new NormalCloud);
 }
 
 
@@ -53,11 +55,17 @@ void Preanalysis::run(
     PointCloudT::Ptr& input, 
     NormalCloud::Ptr& normal, 
     PointCloudC& colMap, 
-    PointCloudT& floorPoints, 
+    PointCloudT::Ptr& floorPoints, 
+    NormalCloud::Ptr& floorNormals, 
     Eigen::Matrix4d& transformCloud
     )
 {
 	pc.reset (new PointCloudT);
+    inputCloud.reset (new PointCloudT);
+    normal_cloud.reset (new NormalCloud);
+    floorPC.reset (new PointCloudT);
+    floorNormal.reset (new NormalCloud);
+
     inputCloud=input;
 
     // transformCloud(0,3) = 0;//-0.2;
@@ -106,6 +114,7 @@ void Preanalysis::run(
     normal=normal_cloud;
     input=pc;
     floorPoints=floorPC;
+    floorNormals=floorNormal;
 
     // for (size_t i_point = 0; i_point < pc->size (); i_point++)
     // {
@@ -157,6 +166,8 @@ void Preanalysis::loadConfig(CurvyTerrainMapperParams::PreanalysisParams config)
 
     inputCloud.reset (new PointCloudT);
     normal_cloud.reset (new NormalCloud);
+    // floorPC.reset (new PointCloudT);
+    // floorNormal.reset (new PointCloudT);
 }
 
 void Preanalysis::limitPC()
@@ -269,7 +280,7 @@ void Preanalysis::normalEstimation()
 
 //	std::vector<int>::pointer floorPtr;
 //	floorPtr = &floorPoints;
-	ne.getFloorIndices(*flIndicesPtr);
+	ne.getFloorIndices(*flIndicesPtr); 
 	ne.getGhostIndices(*gpIndicesPtr);
 	ne.getNormalIndices(*npIndicesPtr);
 
@@ -288,7 +299,9 @@ void Preanalysis::normalEstimation()
     extract.setInputCloud (pc);
     extract.setIndices (flIndicesPtr);
     extract.setNegative (false);
-    extract.filter (floorPC);
+    PointCloudT floorPC_tmp;
+    extract.filter (floorPC_tmp);
+    floorPC.reset(new PointCloudT(floorPC_tmp));
     extract.setIndices(wholeIndicesPtr);
     extract.setNegative (true);
     extract.filter (*pc);
@@ -297,7 +310,9 @@ void Preanalysis::normalEstimation()
 	extractNormal.setInputCloud (normal_cloud);
 	extractNormal.setIndices (flIndicesPtr);
 	extractNormal.setNegative (false);
-	extractNormal.filter (floorNormal);
+    NormalCloud floorNormal_tmp;
+	extractNormal.filter (floorNormal_tmp);
+    floorNormal.reset(new NormalCloud(floorNormal_tmp));
 	extractNormal.setIndices(wholeIndicesPtr);
 	extractNormal.setNegative (true);
 	extractNormal.filter (*normal_cloud);
@@ -350,8 +365,8 @@ void Preanalysis::floorExtraction()
    {
        if(pc->at(filtCounter).z < z_high && pc->at(filtCounter).z > z_low)
        {
-           floorPC.push_back(pc->at(filtCounter));
-           floorNormal.push_back(normal_cloud->at(filtCounter));
+           floorPC->push_back(pc->at(filtCounter));
+           floorNormal->push_back(normal_cloud->at(filtCounter));
            floorIndices.push_back(filtCounter);
        }
        else
@@ -374,15 +389,15 @@ void Preanalysis::floorExtraction()
 
        if(acos(fabs(zAxis.dot(currNorm)))/M_PI*180 > fsAngle)
        {
-           floorlessPC.push_back(floorPC.at(pointCounter));
-           floorlessNormal.push_back(floorNormal.at(pointCounter));
+           floorlessPC.push_back(floorPC->at(pointCounter));
+           floorlessNormal.push_back(floorNormal->at(pointCounter));
            floorlessIndices.push_back(floorIndices.at(pointCounter));
 
-           floorPC.erase(floorPC.begin()+pointCounter,floorPC.begin()+pointCounter+1);
-           floorNormal.erase(floorNormal.begin()+pointCounter,floorNormal.begin()+pointCounter+1);
+           floorPC->erase(floorPC->begin()+pointCounter,floorPC->begin()+pointCounter+1);
+           floorNormal->erase(floorNormal->begin()+pointCounter,floorNormal->begin()+pointCounter+1);
            floorIndices.erase(floorIndices.begin()+pointCounter,floorIndices.begin()+pointCounter+1);
            pointCounter--;
-           if(floorPC.size() == 0)
+           if(floorPC->size() == 0)
            {
                std::cout<<"NO FLOOR DETECTED"<<std::endl;
            }

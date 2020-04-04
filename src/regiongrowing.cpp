@@ -81,6 +81,7 @@ void RegionGrowing::run(regions& output)
         for(size_t indexCount=0; indexCount < clusters.at(clustCounter).indices.size(); indexCount++)
         {
         	tempPatch.segmentCloud.push_back(inputCloud->at(clusters.at(clustCounter).indices.at(indexCount)));
+        	tempPatch.normalCloud.push_back(normalCloud->at(clusters.at(clustCounter).indices.at(indexCount)));
         	tempPatch.segmentIndices->indices.push_back(indexCount);
         	tempPatch.globalIndices.push_back(clusters.at(clustCounter).indices.at(indexCount));
         }
