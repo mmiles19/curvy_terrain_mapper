@@ -13,9 +13,10 @@
     <arg name="fixed_frame_id" default="X1/map"/>
     <arg name="child_frame_id" default="X1/base_link"/>
 
-    <node pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz /camera_info:=/X1/front_down/optical/camera_info /image_rect:=/X1/front_down/optical/depth" name="pc_xyz_nodelet"/>
-    <node pkg="topic_tools" type="relay" name="cloud_relay" args="/points /cloud" />
+    <node pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz /camera_info:=/X1/front_down/optical/camera_info /image_rect:=/X1/front_down/optical/depth /points:=/X1/front_down/optical/points" name="pc_xyz_nodelet"/>
     <node pkg="tf2_ros" type="static_transform_publisher" name="Toptical" args="0 0 0 -1.57 0 -1.57 X1/base_link/camera_down X1/base_link/camera_down_optical"/>
+    
+    <!-- <node pkg="topic_tools" type="relay" name="cloud_relay" args="/points /cloud" /> -->
 
     <include file="$(find curvy_terrain_mapper)/launch/demo.launch">
         <arg name="enable_debug" value="$(arg enable_debug)"/>
@@ -25,6 +26,7 @@
         <arg name="enable_crop" value="$(arg enable_crop)"/>
         <arg name="fixed_frame_id" value="$(arg fixed_frame_id)"/>
         <arg name="child_frame_id" value="$(arg child_frame_id)"/>
+        <arg name="input_cloud_topic" value="/X1/front_down/optical/points"/>
     </include>
 
 <!-- STAIRS PUBLISHER -->
