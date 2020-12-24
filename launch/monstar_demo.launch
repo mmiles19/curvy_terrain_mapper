@@ -30,7 +30,7 @@
 
     <include file="$(find curvy_terrain_mapper)/launch/curvy_terrain_mapper.launch">
         <arg name="input_cloud_topic" value="cloud"/>
-        <arg name="fixed_frame_id" value="base_link"/>
+        <arg name="fixed_frame_id" value="map"/>
         <!-- <arg name="pub_viz" value="true"/> -->
         <!-- <arg name="preanalysis/dsFlag" value="preanalysis/dsFlag"/> -->
         <!-- <arg name="preanalysis/dsResolution" value="preanalysis/dsResolution"/> -->

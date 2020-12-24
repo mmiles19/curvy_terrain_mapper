@@ -30,11 +30,15 @@ typedef pcl::PointXYZ PointT;
 typedef pcl::PointNormal PointNT;
 typedef pcl::Normal Normal;
 typedef pcl::PointXYZRGB PointTC;
+typedef pcl::PointXYZI PointTI;
+typedef pcl::PointXYZINormal PointTIN;
 
 typedef pcl::PointCloud<PointT> PointCloudT;
 typedef pcl::PointCloud<PointNT> PointCloudN;
 typedef pcl::PointCloud<Normal> NormalCloud;
 typedef pcl::PointCloud<PointTC> PointCloudC;
+typedef pcl::PointCloud<PointTI> PointCloudI;
+typedef pcl::PointCloud<PointTIN> PointCloudIN;
 
 CurvyTerrainMapperParams params_;
 
@@ -44,12 +48,21 @@ bool busy;
 // YAML::Node config_;
 // std::string fixed_frame_id_;
 ros::Time stamp_;
+std::string frame_;
 ros::Publisher main_cloud_pub_;
 ros::Publisher normal_cloud_pub_;
 ros::Publisher curvature_pub_;
 ros::Publisher costmap_pub_;
 ros::Publisher costmap3d_pub_;
 ros::Publisher seg_regions_pub_;
+ros::Publisher costcloud_pub_;
+ros::Publisher costnormcloud_pub_;
+
+inline float rescale(float initial, float min_initial, float max_initial, float min_final=0.0f, float max_final=1.0f)
+{
+    float ratio = (max_final-min_final)/(max_initial-min_initial)*initial + (min_final*max_initial-max_final*min_initial)/(max_initial-min_initial);
+    return ratio;        
+}
 
 inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
 {
@@ -60,6 +73,7 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
     busy = true;
 
     stamp_ = input_msg.header.stamp;
+    frame_ = input_msg.header.frame_id;
 
 // Loading input point cloud //
 
@@ -109,196 +123,296 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
     
 // Starting segmentation //
 
-    ROS_INFO("Starting segmentation");
-    double segS = pcl::getTime();
-    regions segRegions;
-    int segMode = params_.segmentationmode;
+    // ROS_INFO("Starting segmentation");
+    // double segS = pcl::getTime();
+    // regions segRegions;
+    // int segMode = params_.segmentationmode;
     // PointCloudT::Ptr segCloud = mainCloud;
     // NormalCloud::Ptr segNormals = mainNormals; 
-    // PointCloudT::Ptr segCloud = floorCloud;
-    // NormalCloud::Ptr segNormals = floorNormals;
-    switch (segMode) 
-    {
-        case 0:
-        {
-            ROS_INFO("Using Region Growing algorithm");
-            RegionGrowing reGrow;
-            reGrow.loadConfig(params_.regiongrowing);
-            reGrow.setInputCloud(floorCloud);
-            reGrow.setNormalCloud(floorNormals);
-            // extract and init segRegions with smooth regions
-            reGrow.run(segRegions);
-            break;
-        }
-        // case 1:
-        // {
-        //     ROS_INFO("Using Voxel SAC algorithm");
-        //     voxSAC voxelSAC;
-        //     voxelSAC.setInputCloud(segCloud);
-        //     voxelSAC.setNormalCloud(segNormals);
-        //     voxelSAC.run(segRegions);
-        //     break;
-        // }
-        // case 2:
-        // {
-        //     ROS_INFO("Using Split & Merge algorithm");
-        //     splitMerge sam;
-        //     sam.setInputCloud(segCloud);
-        //     sam.setNormalCloud(segNormals);
-        //     sam.splitProcess();
-        //     sam.mergeProcess(segRegions);
-        //     break;
-        // }
-    }
-    double segE = pcl::getTime();
-    ROS_INFO("Segmentation found %d regions",segRegions.size());
-    ROS_INFO("Segmentation took: %f",segE-segS);
+    // // PointCloudT::Ptr segCloud = floorCloud;
+    // // NormalCloud::Ptr segNormals = floorNormals;
+    // switch (segMode) 
+    // {
+    //     case 0:
+    //     {
+    //         ROS_INFO("Using Region Growing algorithm");
+    //         RegionGrowing reGrow;
+    //         reGrow.loadConfig(params_.regiongrowing);
+    //         reGrow.setInputCloud(segCloud);
+    //         reGrow.setNormalCloud(segNormals);
+    //         // extract and init segRegions with smooth regions
+    //         reGrow.run(segRegions);
+    //         break;
+    //     }
+    //     // case 1:
+    //     // {
+    //     //     ROS_INFO("Using Voxel SAC algorithm");
+    //     //     voxSAC voxelSAC;
+    //     //     voxelSAC.setInputCloud(segCloud);
+    //     //     voxelSAC.setNormalCloud(segNormals);
+    //     //     voxelSAC.run(segRegions);
+    //     //     break;
+    //     // }
+    //     // case 2:
+    //     // {
+    //     //     ROS_INFO("Using Split & Merge algorithm");
+    //     //     splitMerge sam;
+    //     //     sam.setInputCloud(segCloud);
+    //     //     sam.setNormalCloud(segNormals);
+    //     //     sam.splitProcess();
+    //     //     sam.mergeProcess(segRegions);
+    //     //     break;
+    //     // }
+    // }
+    // double segE = pcl::getTime();
+    // ROS_INFO("Segmentation found %d regions",segRegions.size());
+    // ROS_INFO("Segmentation took: %f",segE-segS);
 
-    pubRegions(&seg_regions_pub_,segRegions, params_.fixed_frame_id, stamp_);
+    // pubRegions(&seg_regions_pub_,segRegions, params_.fixed_frame_id, stamp_);
 
-    if (segRegions.size()==0)
-    {
-        busy = false;
-        return;
-    }
-
-    segmentPatch largestPatch;
-    for (uint i=0; i<segRegions.size(); i++)
-    {
-        if (segRegions.at(i).segmentCloud.size() > largestPatch.segmentCloud.size())
-        {
-            largestPatch = segRegions.at(i);
-        }
-    }
-    ROS_INFO("Largest patch has %d points",largestPatch.segmentCloud.size());
+    // if (segRegions.size()==0)
+    // {
+    //     busy = false;
+    //     return;
+    // }
+    
+    // segmentPatch largestPatch;
+    // for (uint i=0; i<segRegions.size(); i++)
+    // {
+    //     if (segRegions.at(i).segmentCloud.size() > largestPatch.segmentCloud.size())
+    //     {
+    //         largestPatch = segRegions.at(i);
+    //     }
+    // }
+    // ROS_INFO("Largest patch has %d points",largestPatch.segmentCloud.size());
 
     // init costmap
     ROS_INFO("Starting costmap calculation");
     double cmS = pcl::getTime();
-    float map_min_x = 0.f, map_max_x = 4.f, map_min_y = -1.5f, map_max_y = 1.5f, resolution = 0.05;
-    uint map_size_x = (map_max_x-map_min_x)/resolution, map_size_y = (map_max_y-map_min_y)/resolution;
+
+    // float map_min_x = 0.f, map_max_x = 4.f, map_min_y = -1.5f, map_max_y = 1.5f, resolution = 0.05;
+    // uint map_size_x = (map_max_x-map_min_x)/resolution, map_size_y = (map_max_y-map_min_y)/resolution;
 
     // calc cost of each point
     Eigen::Vector3f upVec(0,0,1);
-    double min_cost = INFINITY, max_cost = -INFINITY;
+    float min_cost = INFINITY, max_cost = -INFINITY;
+    // double min_cost = 0.0, max_cost = 1.0;
     float curvature_gain = params_.costmap.curv_gain;
     float normal_gain = params_.costmap.normal_gain;
+
     // PointCloudT::Ptr costCloud = mainCloud;
     // NormalCloud::Ptr costNormals = mainNormals; 
-    // PointCloudT::Ptr costCloud = floorCloud;
-    // NormalCloud::Ptr costNormals = floorNormals; 
-    PointCloudT::Ptr costCloud; costCloud.reset(new PointCloudT(largestPatch.segmentCloud));
-    NormalCloud::Ptr costNormals; costNormals.reset(new NormalCloud(largestPatch.normalCloud));
-    ROS_INFO("costCloud has %d points",costNormals->size());
-    // assert(costCloud->size()==costNormals->size());
-    std::vector<double> costs(costCloud->size());
-    {
-        for(size_t pointIdx = 0; pointIdx < costCloud->size(); pointIdx++)
-        {
-            PointT thisPt = costCloud->at(pointIdx);
-            Normal thisNm = costNormals->at(pointIdx);
-            Eigen::Vector3f nmVec(thisNm.normal_x, thisNm.normal_y, thisNm.normal_z);
+    // // PointCloudT::Ptr costCloud = floorCloud;
+    // // NormalCloud::Ptr costNormals = floorNormals; 
+    // // PointCloudT::Ptr costCloud; costCloud.reset(new PointCloudT(largestPatch.segmentCloud));
+    // // NormalCloud::Ptr costNormals; costNormals.reset(new NormalCloud(largestPatch.normalCloud));
+    // ROS_INFO("costCloud has %d points",costNormals->size());
+    // // assert(costCloud->size()==costNormals->size());
+    // std::vector<double> costs(costCloud->size());
+    // {
+    //     for(size_t pointIdx = 0; pointIdx < costCloud->size(); pointIdx++)
+    //     {
+    //         PointT thisPt = costCloud->at(pointIdx);
+    //         Normal thisNm = costNormals->at(pointIdx);
+    //         Eigen::Vector3f nmVec(thisNm.normal_x, thisNm.normal_y, thisNm.normal_z);
 
-            // calc cost
+    //         // calc cost
+    //         double cost = 0;
+    //         cost += normal_gain*pow(fabs((1/upVec.dot(nmVec) - 1)),2);
+    //         cost += curvature_gain*fabs(thisNm.curvature);
+    //         // cost += fabs(curvature_gain*(cbrt(thisNm.curvature)));
+    //         if (cost > max_cost) { max_cost = cost; }
+    //         if (cost < min_cost) { min_cost = cost; }
+    //         costs[pointIdx] = cost;
+    //     }
+    // }
+
+    PointCloudIN costCloud;
+    {
+        for(uint i=0; i<mainCloud->size(); i++)
+        {
+            PointT pt = mainCloud->points[i];
+            Normal nm = mainNormals->points[i];
+
+            Eigen::Vector3f nmVec(nm.normal_x, nm.normal_y, nm.normal_z);
+
             double cost = 0;
-            cost += normal_gain*fabs((1/upVec.dot(nmVec) - 1));
-            cost += curvature_gain*fabs(thisNm.curvature);
-            // cost += fabs(curvature_gain*(cbrt(thisNm.curvature)));
+            cost += normal_gain*pow(1-fabs(upVec.dot(nmVec)),3);
+            cost += curvature_gain*fabs(nm.curvature);
+            // cost += fabs(curvature_gain*(cbrt(it->curvature)));
+
             if (cost > max_cost) { max_cost = cost; }
             if (cost < min_cost) { min_cost = cost; }
-            costs[pointIdx] = cost;
+
+            // if (cost > max_cost) { cost = max_cost; }
+            // if (cost < min_cost) { cost = min_cost; }
+
+            PointTIN newpt;
+            newpt.x = pt.x;
+            newpt.y = pt.y;
+            newpt.z = pt.z;
+            newpt.intensity = cost;
+            newpt.normal_x = nm.normal_x;
+            newpt.normal_y = nm.normal_y;
+            newpt.normal_z = nm.normal_z;
+            newpt.curvature = nm.curvature;
+            costCloud.push_back(newpt);
         }
     }
+
+    PointCloudIN costNormCloud;
+    {
+        for(uint i=0; i<costCloud.size(); i++)
+        {
+            PointTIN pt = costCloud.points[i];
+
+            PointTIN newpt;
+            newpt.x = pt.x;
+            newpt.y = pt.y;
+            newpt.z = pt.z;
+
+            if (params_.costmap.set_max_saturation_cost_to_max_cost) params_.costmap.max_saturation_cost = max_cost;
+            if (params_.costmap.set_min_saturation_cost_to_min_cost) params_.costmap.min_saturation_cost = min_cost;
+            newpt.intensity = std::min(std::max(rescale(pt.intensity, params_.costmap.min_saturation_cost, params_.costmap.max_saturation_cost,0.0f,1.0f),0.0f),1.0f);
+            if (!isfinite(newpt.intensity) || newpt.intensity<0.0 || newpt.intensity>1.0)
+                continue;
+
+            newpt.normal_x = pt.normal_x;
+            newpt.normal_y = pt.normal_y;
+            newpt.normal_z = pt.normal_z;
+            newpt.curvature = pt.curvature;
+            costNormCloud.push_back(newpt);
+        }
+    }
+
     double cmE = pcl::getTime();
     ROS_INFO("Costmap gen took: %f s. Publishing costmap(s)...",cmE-cmS);
-    // pub 3d costmap
+    // pub costmap pc2
+    // pcl::PointCloud<pcl::PointXYZI>::Ptr cost_cloud;
+    // {
+    //     for(size_t pointIdx = 0; pointIdx < costCloud->size(); pointIdx++)
+    //     {
+    //         PointT thisPt = costCloud->at(pointIdx);
+            
+    //         pcl::PointXYZI cloud_pt;
+    //         cloud_pt.x = thisPt.x;
+    //         cloud_pt.y = thisPt.y;
+    //         cloud_pt.z = thisPt.z;
+    //         cloud_pt.intensity = cost[pointIdx];
+    //         cost_cloud->push_back(cloud_pt);
+    //     }
+    //     sensor_msgs::PointCloud2 msg;
+    //     pcl::toROSMsg(cost_cloud, msg);
+    //     costcloud_pub_.publish(msg);
+    //     ros::spinOnce();
+    // }
+
+    // pub cost cloud
     {
-        float scale = 0.01;
-        visualization_msgs::Marker cost_msg;
-        cost_msg.header.frame_id = params_.fixed_frame_id;
-        cost_msg.header.stamp = stamp_;
-        cost_msg.type = cost_msg.POINTS;
-        cost_msg.action = cost_msg.ADD;
-        cost_msg.scale.x = scale;
-        cost_msg.scale.y = scale;
-        cost_msg.scale.z = scale;
-        cost_msg.lifetime = ros::Duration(0.0);
-
-        max_cost  = 10.0;
-        double min_color_val = 0.f;
-        double max_color_val = 1.f;
-        auto a=min_cost, b=max_cost, c=min_color_val, d=max_color_val;
-
-        for(size_t pointIdx = 0; pointIdx < costCloud->size(); pointIdx++)
-        {
-            PointT thisPt = costCloud->at(pointIdx);
-
-            // calc color for viz
-            double cost = std::min(max_cost, std::max(min_cost, costs[pointIdx]));
-            double color_ratio = (d-c)/(b-a)*cost + (c*b-d*a)/(b-a);
-            std_msgs::ColorRGBA rgb_msg;
-            RGBColor color = getRGBColor(color_ratio);
-
-            // construct marker msg
-            geometry_msgs::Point pt_msg;
-            pt_msg.x = thisPt.x;
-            pt_msg.y = thisPt.y;
-            pt_msg.z = thisPt.z;
-            cost_msg.points.push_back(pt_msg);
-            rgb_msg.r = color.r;
-            rgb_msg.g = color.g;
-            rgb_msg.b = color.b;
-            rgb_msg.a = 1.;
-            cost_msg.colors.push_back(rgb_msg);
-
-            // ROS_INFO("point %d x %f y %f z %f cost %f colrat %f", pointIdx, thisPt.x, thisPt.y, thisPt.z, cost, color_ratio);
-        }
-        costmap3d_pub_.publish(cost_msg);
+        sensor_msgs::PointCloud2 costcloud_msg;
+        pcl::toROSMsg (costCloud, costcloud_msg);
+        costcloud_msg.header.frame_id = params_.fixed_frame_id;
+        costcloud_msg.header.stamp = stamp_;
+        costcloud_pub_.publish(costcloud_msg);
         ros::spinOnce();
     }
-    // pub 2d costmap
+    // pub cost norm cloud
     {
-        float scale = 0.01;
-        visualization_msgs::Marker cost_msg;
-        cost_msg.header.frame_id = params_.fixed_frame_id;
-        cost_msg.header.stamp = stamp_;
-        cost_msg.type = cost_msg.POINTS;
-        cost_msg.action = cost_msg.ADD;
-        cost_msg.scale.x = scale;
-        cost_msg.scale.y = scale;
-        cost_msg.scale.z = scale;
-        cost_msg.lifetime = ros::Duration(0.0);
-
-        max_cost  = 10.0;
-        double min_color_val = 0.f;
-        double max_color_val = 1.f;
-        auto a=min_cost, b=max_cost, c=min_color_val, d=max_color_val;
-
-        for(size_t pointIdx = 0; pointIdx < costCloud->size(); pointIdx++)
-        {
-            PointT thisPt = costCloud->at(pointIdx);
-
-            // calc color for viz
-            double cost = std::min(max_cost, std::max(min_cost, costs[pointIdx]));
-            double color_ratio = (d-c)/(b-a)*cost + (c*b-d*a)/(b-a);
-            std_msgs::ColorRGBA rgb_msg;
-            RGBColor color = getRGBColor(color_ratio);
-
-            // construct marker msg
-            geometry_msgs::Point pt_msg;
-            pt_msg.x = thisPt.x;
-            pt_msg.y = thisPt.y;
-            pt_msg.z = 0;
-            cost_msg.points.push_back(pt_msg);
-            rgb_msg.r = color.r;
-            rgb_msg.g = color.g;
-            rgb_msg.b = color.b;
-            rgb_msg.a = 1.;
-            cost_msg.colors.push_back(rgb_msg);
-        }
-        costmap_pub_.publish(cost_msg);
+        sensor_msgs::PointCloud2 costcloud_msg;
+        pcl::toROSMsg (costNormCloud, costcloud_msg);
+        costcloud_msg.header.frame_id = params_.fixed_frame_id;
+        costcloud_msg.header.stamp = stamp_;
+        costnormcloud_pub_.publish(costcloud_msg);
         ros::spinOnce();
     }
+    // // pub 3d costmap viz
+    // {
+    //     float scale = 0.01;
+    //     visualization_msgs::Marker cost_msg;
+    //     cost_msg.header.frame_id = params_.fixed_frame_id;
+    //     cost_msg.header.stamp = stamp_;
+    //     cost_msg.type = cost_msg.POINTS;
+    //     cost_msg.action = cost_msg.ADD;
+    //     cost_msg.scale.x = scale;
+    //     cost_msg.scale.y = scale;
+    //     cost_msg.scale.z = scale;
+    //     cost_msg.lifetime = ros::Duration(0.0);
+
+    //     // max_cost  = 10.0;
+    //     double min_color_val = 0.f;
+    //     double max_color_val = 1.f;
+    //     auto a=min_initial, b=max_initial, c=min_final, d=max_final;
+
+    //     for(size_t pointIdx = 0; pointIdx < costCloud->size(); pointIdx++)
+    //     {
+    //         PointT thisPt = costCloud->at(pointIdx);
+
+    //         // calc color for viz
+    //         double cost = std::min(max_cost, std::max(min_cost, costs[pointIdx]));
+    //         double color_ratio = (max_final-min_final)/(max_initial-min_initial)*initial + (min_final*max_initial-max_final*min_initial)/(max_initial-min_initial);
+    //         std_msgs::ColorRGBA rgb_msg;
+    //         RGBColor color = getRGBColor(color_ratio);
+
+    //         // construct marker msg
+    //         geometry_msgs::Point pt_msg;
+    //         pt_msg.x = thisPt.x;
+    //         pt_msg.y = thisPt.y;
+    //         pt_msg.z = thisPt.z;
+    //         cost_msg.points.push_back(pt_msg);
+    //         rgb_msg.r = color.r;
+    //         rgb_msg.g = color.g;
+    //         rgb_msg.b = color.b;
+    //         rgb_msg.a = 1.;
+    //         cost_msg.colors.push_back(rgb_msg);
+
+    //         // ROS_INFO("point %d x %f y %f z %f cost %f colrat %f", pointIdx, thisPt.x, thisPt.y, thisPt.z, cost, color_ratio);
+    //     }
+    //     costmap3d_pub_.publish(cost_msg);
+    //     ros::spinOnce();
+    // }
+    // // pub 2d costmap
+    // {
+    //     float scale = 0.01;
+    //     visualization_msgs::Marker cost_msg;
+    //     cost_msg.header.frame_id = params_.fixed_frame_id;
+    //     cost_msg.header.stamp = stamp_;
+    //     cost_msg.type = cost_msg.POINTS;
+    //     cost_msg.action = cost_msg.ADD;
+    //     cost_msg.scale.x = scale;
+    //     cost_msg.scale.y = scale;
+    //     cost_msg.scale.z = scale;
+    //     cost_msg.lifetime = ros::Duration(0.0);
+
+    //     max_cost  = 10.0;
+    //     double min_color_val = 0.f;
+    //     double max_color_val = 1.f;
+    //     auto a=min_cost, b=max_cost, c=min_color_val, d=max_color_val;
+
+    //     for(size_t pointIdx = 0; pointIdx < costCloud->size(); pointIdx++)
+    //     {
+    //         PointT thisPt = costCloud->at(pointIdx);
+
+    //         // calc color for viz
+    //         double cost = std::min(max_cost, std::max(min_cost, costs[pointIdx]));
+    //         double color_ratio = (d-c)/(b-a)*cost + (c*b-d*a)/(b-a);
+    //         std_msgs::ColorRGBA rgb_msg;
+    //         RGBColor color = getRGBColor(color_ratio);
+
+    //         // construct marker msg
+    //         geometry_msgs::Point pt_msg;
+    //         pt_msg.x = thisPt.x;
+    //         pt_msg.y = thisPt.y;
+    //         pt_msg.z = 0;
+    //         cost_msg.points.push_back(pt_msg);
+    //         rgb_msg.r = color.r;
+    //         rgb_msg.g = color.g;
+    //         rgb_msg.b = color.b;
+    //         rgb_msg.a = 1.;
+    //         cost_msg.colors.push_back(rgb_msg);
+    //     }
+    //     costmap_pub_.publish(cost_msg);
+    //     ros::spinOnce();
+    // }
 
     busy = false;
 }
@@ -341,6 +455,10 @@ void cfgCb(curvy_terrain_mapper::CurvyTerrainMapperConfig &config, uint32_t leve
     params_.regiongrowing.updateInterval = config.groups.region_growing.updateInterval;
     params_.costmap.normal_gain = config.groups.costmap.normal_gain;
     params_.costmap.curv_gain = config.groups.costmap.curv_gain;
+    params_.costmap.max_saturation_cost = config.groups.costmap.max_saturation_cost;
+    params_.costmap.min_saturation_cost = config.groups.costmap.min_saturation_cost;
+    params_.costmap.set_max_saturation_cost_to_max_cost = config.groups.costmap.set_max_saturation_cost_to_max_cost;
+    params_.costmap.set_min_saturation_cost_to_min_cost = config.groups.costmap.set_min_saturation_cost_to_min_cost;
 }
 
 int main (int argc, char *argv[])
@@ -385,6 +503,10 @@ int main (int argc, char *argv[])
     n.param("regiongrowing/updateInterval", params_.regiongrowing.updateInterval, 100);
     n.param("costmap/normal_gain", params_.costmap.normal_gain, 4.0);
     n.param("costmap/curv_gain", params_.costmap.curv_gain, 30.0);
+    n.param("costmap/max_saturation_cost", params_.costmap.max_saturation_cost, 1.0);
+    n.param("costmap/min_saturation_cost", params_.costmap.min_saturation_cost, 0.0);
+    n.param("costmap/set_max_saturation_cost_to_max_cost", params_.costmap.set_max_saturation_cost_to_max_cost, true);
+    n.param("costmap/set_min_saturation_cost_to_min_cost", params_.costmap.set_min_saturation_cost_to_min_cost, true);
 
     // config_ = YAML::LoadFile(config_filepath_);
     // params_.fixed_frame_id = config_["ros"]["fixed_frame_id"].as<std::string>();
@@ -395,6 +517,8 @@ int main (int argc, char *argv[])
     costmap_pub_ = n.advertise<visualization_msgs::Marker>("costmap",1);
     costmap3d_pub_ = n.advertise<visualization_msgs::Marker>("costmap3d",1);
     seg_regions_pub_ = n.advertise<visualization_msgs::Marker>("segmented_regions", 1);
+    costcloud_pub_ = n.advertise<sensor_msgs::PointCloud2>("cost_cloud",1);
+    costnormcloud_pub_ = n.advertise<sensor_msgs::PointCloud2>("cost_norm_cloud",1);
 
     ros::spin();
 }

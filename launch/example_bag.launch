@@ -1,7 +1,13 @@
 <launch>
+
+    <arg name="enable_debug" default="false"/>
+    <arg name="enable_ctm" default="true"/>
+    <arg name="enable_octomap" default="true"/>
+    <arg name="enable_crop" default="true"/>
+    
     <arg name="M_PI" value="3.14159265"/>
 
-    <arg name="fixed_frame_id" default="base_link"/>
+    <!-- <arg name="fixed_frame_id" default="H01/map"/> -->
 
 <!-- stairs_descent_ECESAtrium -->
     <!-- <arg name="filepath" default="/home/mike/code_files/marble/bagfiles/stairs_2020-01-13-17-14-07_combined_trimmed.bag"/>
@@ -27,16 +33,90 @@
     args="0 0 0 3.14 0 -1.57 $(arg fixed_frame_id) /vert_os1_lidar"/> -->
 
 <!-- stairs_descent_ECESAtrium -->
-    <arg name="filepath" default="/home/mike/code_files/marble/bagfiles/stairs_2020-01-13-17-14-07_combined_trimmed.bag"/>
+    <!-- <arg name="filepath" default="/home/mike/code_files/marble/bagfiles/stairs_2020-01-13-17-14-07_combined_trimmed.bag"/>
     <node pkg="topic_tools" type="relay" name="cloud_relay"
         args=" /S24/camera_low/depth/color/points cloud" />
     <node pkg="tf2_ros" type="static_transform_publisher" name="TBase"
     args="0 0 0 0 .5 0 $(arg fixed_frame_id) camera_low"/>
     <node pkg="tf2_ros" type="static_transform_publisher" name="TOpticalFrame"
-    args="0 0 0 -1.57 0 -1.57 camera_low camera_low_depth_optical_frame"/>
+    args="0 0 0 -1.57 0 -1.57 camera_low camera_low_depth_optical_frame"/> -->
+
+<!-- subt_tap -->
+    <!-- <arg name="filepath" default="/home/mike/subt_tap4.bag"/>
+    <node pkg="topic_tools" type="relay" name="cloud_relay"
+        args=" /H01/pico_flexx_left/points /cloud" /> -->
+
+<!-- subt_sim -->
+    <param name="use_sim_time" value="true"/>
+    <arg name="filepath" default="/home/mike/subt_sim_startup3_w_traj.bag"/>
+    <arg name="fixed_frame_id" default="X1/map"/>
+    <arg name="child_frame_id" default="X1/base_link"/>
+    <node pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz /camera_info:=/X1/front_down/optical/camera_info /image_rect:=/X1/front_down/optical/depth" name="pc_xyz_nodelet"/>
+    <node pkg="topic_tools" type="relay" name="cloud_relay" args="/points /cloud" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="Toptical" args="0 0 0 -1.57 0 -1.57 X1/base_link/camera_down X1/base_link/camera_down_optical"/>
+
+<!-- launch curvy_terrain_mapper -->
+    <include file="$(find curvy_terrain_mapper)/launch/curvy_terrain_mapper.launch" if="$(arg enable_ctm)">
+        <arg name="fixed_frame_id" value="$(arg fixed_frame_id)"/>
+        <arg name="input_cloud_topic" value="/cloud"/>
+        <arg name="enable_debug" value="$(arg enable_debug)"/>
+        <arg name="costmap/normal_gain" value="4.0"/>
+        <arg name="costmap/curv_gain" value="20.0"/>
+        <arg name="costmap/min_saturation_cost" value="0.0"/>
+        <arg name="costmap/max_saturation_cost" value="0.1"/>
+        <arg name="costmap/set_min_saturation_cost_to_min_cost" value="false"/>
+        <arg name="costmap/set_max_saturation_cost_to_max_cost" value="false"/>
+    </include>
+
+    <!-- <include file="$(find octomap_server)/launch/octomap_mapping_rough.launch" if="$(arg enable_octomap)">
+        <arg name="cloud_in"                value="/curvy_terrain_mapper/cost_norm_cloud/cropped" if="$(arg enable_crop)"/>
+        <arg name="cloud_in"                value="/curvy_terrain_mapper/cost_norm_cloud" unless="$(arg enable_crop)"/>
+        <arg name="frame_id"                value="$(arg fixed_frame_id)"/>
+        <arg name="base_frame_id"           value="$(arg child_frame_id)"/>
+        <arg name="filter_speckles"         value="false"/>
+        <arg name="filter_ground"           value="false"/>
+        <arg name="sensor_model/max_range"  value="20.0"/>
+        <arg name="resolution"              value="0.2"/>
+        <arg name="sensor_model/hit"        value="0.9"/>
+        <arg name="sensor_model/miss"       value="0.2"/>
+        <arg name="sensor_model/min"        value="0.12"/>
+        <arg name="sensor_model/max"        value="0.97"/>
+        <arg name="compress_map"            value="true"/> 
+    </include> -->
+    <include file="$(find marble_mapping)/launch/marble_mapping.launch" if="$(arg enable_octomap)">
+        <arg name="cloud_in"                value="/curvy_terrain_mapper/cost_norm_cloud/cropped" if="$(arg enable_crop)"/>
+        <arg name="cloud_in"                value="/curvy_terrain_mapper/cost_norm_cloud" unless="$(arg enable_crop)"/>
+        <arg name="frame_id"                value="$(arg fixed_frame_id)"/>
+        <arg name="filter_ground"           value="false"/>
+        <arg name="max_range"               value="20.0"/>
+        <arg name="resolution"              value="0.2"/>
+        <arg name="sensor_model/hit"        value="0.9"/>
+        <arg name="sensor_model/miss"       value="0.2"/>
+        <arg name="sensor_model/min"        value="0.12"/>
+        <arg name="sensor_model/max"        value="0.97"/>
+    </include>
+
+    <node pkg="nodelet" type="nodelet" name="box_filter" args="standalone pcl/CropBox" output="screen" if="$(arg enable_crop)">
+      <remap from="~input" to="/curvy_terrain_mapper/cost_norm_cloud" />
+      <remap from="~output" to="/curvy_terrain_mapper/cost_norm_cloud/cropped" />
+      <param name="~input_frame" value="$(arg child_frame_id)"/>
+      <param name="~output_frame" value="$(arg child_frame_id)"/>
+      <rosparam>
+        # true: no points in the box, false: no points outside the box
+        negative: true
+        min_x: -1.0
+        max_x: 2.0
+        min_y: -1.0
+        max_y: 1.0
+        min_z: -0.5
+        max_z: 0.5
+      </rosparam>
+    </node>
+
+    <node pkg="topic_tools" type="relay" name="cloud_relay2" args="/curvy_terrain_mapper/cost_norm_cloud /curvy_terrain_mapper/cost_norm_cloud/cropped" unless="$(arg enable_crop)"/>
 
 <!-- STAIRS PUBLISHER -->
-    <node pkg="rosbag" type="play" name="bag_player" output="screen"
-    args=" $(arg filepath) -l"/>
+    <node pkg="rosbag" type="play" name="bag_player" output="log"
+    args="--loop $(arg filepath) "/>
 
 </launch>

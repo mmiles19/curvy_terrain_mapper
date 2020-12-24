@@ -32,7 +32,7 @@ typedef pcl::PointCloud<PointNT> PointCloudN;
 typedef pcl::PointCloud<Normal> NormalCloud;
 typedef pcl::PointCloud<PointTC> PointCloudC;
 
-struct RGBColor{ uint r, g, b; };
+struct RGBColor{ float r, g, b; };
 inline RGBColor getRGBColor(double ratio)
 {
     //we want to normalize ratio so that it fits in to 6 regions
@@ -133,9 +133,9 @@ inline void pubNormalCloud(ros::Publisher* pub, PointCloudT tcloud, NormalCloud 
         // rgb_msg.r = nm.normal_z;
         // rgb_msg.g = nm.normal_x;
         // rgb_msg.b = nm.normal_y;
-        rgb_msg.r = abs(cbrt(nm.normal_x));
-        rgb_msg.g = abs(cbrt(nm.normal_y));
-        rgb_msg.b = abs(cbrt(nm.normal_z));
+        rgb_msg.r = abs(nm.normal_x);
+        rgb_msg.g = abs(nm.normal_y);
+        rgb_msg.b = abs(nm.normal_z);
         // rgb_msg.r = ( (fabs(nm.normal_x)>fabs(nm.normal_y) && fabs(nm.normal_x)>fabs(nm.normal_z)) ? 1.0 : 0.0 );
         // rgb_msg.g = ( (fabs(nm.normal_y)>fabs(nm.normal_x) && fabs(nm.normal_y)>fabs(nm.normal_z)) ? 1.0 : 0.0 );
         // rgb_msg.b = ( (fabs(nm.normal_z)>fabs(nm.normal_x) && fabs(nm.normal_z)>fabs(nm.normal_y)) ? 1.0 : 0.0 );
@@ -236,7 +236,7 @@ inline void getTransformFromTree(std::string parent_frame_id, std::string child_
     tf::StampedTransform tform_msg;
     try
     {
-        listener.waitForTransform(parent_frame_id, child_frame_id, ros::Time::now(), ros::Duration(1));
+        listener.waitForTransform(parent_frame_id, child_frame_id, ros::Time::now(), ros::Duration(0.5));
         listener.lookupTransform(parent_frame_id, child_frame_id, stamp, tform_msg);
     }
     catch (tf::TransformException ex)
@@ -288,6 +288,10 @@ struct CurvyTerrainMapperParams{
     struct CostmapParams{
         double normal_gain;
         double curv_gain;
+        double min_saturation_cost;
+        double max_saturation_cost;
+        bool set_min_saturation_cost_to_min_cost;
+        bool set_max_saturation_cost_to_max_cost;
     } costmap;
 };
 

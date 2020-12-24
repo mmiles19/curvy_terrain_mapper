@@ -52,7 +52,7 @@ ros::Publisher seg_stairs_pub_;
 ros::Publisher stair_parts_pub_;
 ros::Publisher nearest_step_pose_pub_;
 
-struct RGBColor{ uint r, g, b; };
+struct RGBColor{ float r, g, b; };
 inline RGBColor getRGBColor(double ratio)
 {
     //we want to normalize ratio so that it fits in to 6 regions

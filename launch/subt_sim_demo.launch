@@ -1,0 +1,34 @@
+<launch>
+
+    <arg name="enable_debug" default="false"/>
+    <arg name="enable_ctm" default="true"/>
+    <arg name="enable_octomap" default="true"/>
+    <arg name="enable_marble_mapping" default="false"/>
+    <arg name="enable_crop" default="true"/>
+    
+    <arg name="M_PI" value="3.14159265"/>
+
+    <param name="use_sim_time" value="true"/>
+    <arg name="filepath" default="/home/mike/subt_sim_startup3_w_traj.bag"/>
+    <arg name="fixed_frame_id" default="X1/map"/>
+    <arg name="child_frame_id" default="X1/base_link"/>
+
+    <node pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz /camera_info:=/X1/front_down/optical/camera_info /image_rect:=/X1/front_down/optical/depth" name="pc_xyz_nodelet"/>
+    <node pkg="topic_tools" type="relay" name="cloud_relay" args="/points /cloud" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="Toptical" args="0 0 0 -1.57 0 -1.57 X1/base_link/camera_down X1/base_link/camera_down_optical"/>
+
+    <include file="$(find curvy_terrain_mapper)/launch/demo.launch">
+        <arg name="enable_debug" value="$(arg enable_debug)"/>
+        <arg name="enable_ctm" value="$(arg enable_ctm)"/>
+        <arg name="enable_octomap" value="$(arg enable_octomap)"/>
+        <arg name="enable_marble_mapping" value="$(arg enable_marble_mapping)"/>
+        <arg name="enable_crop" value="$(arg enable_crop)"/>
+        <arg name="fixed_frame_id" value="$(arg fixed_frame_id)"/>
+        <arg name="child_frame_id" value="$(arg child_frame_id)"/>
+    </include>
+
+<!-- STAIRS PUBLISHER -->
+    <node pkg="rosbag" type="play" name="bag_player" output="log"
+    args="--loop $(arg filepath) "/>
+
+</launch>
