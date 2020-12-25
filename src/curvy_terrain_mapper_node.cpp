@@ -50,18 +50,18 @@ bool busy;
 ros::Time stamp_;
 std::string frame_;
 ros::Publisher main_cloud_pub_;
-ros::Publisher normal_cloud_pub_;
-ros::Publisher curvature_pub_;
-ros::Publisher costmap_pub_;
-ros::Publisher costmap3d_pub_;
-ros::Publisher seg_regions_pub_;
+// ros::Publisher normal_cloud_pub_;
+// ros::Publisher curvature_pub_;
+// ros::Publisher costmap_pub_;
+// ros::Publisher costmap3d_pub_;
+// ros::Publisher seg_regions_pub_;
 ros::Publisher costcloud_pub_;
 ros::Publisher costnormcloud_pub_;
 
 inline float rescale(float initial, float min_initial, float max_initial, float min_final=0.0f, float max_final=1.0f)
 {
     float ratio = (max_final-min_final)/(max_initial-min_initial)*initial + (min_final*max_initial-max_final*min_initial)/(max_initial-min_initial);
-    return ratio;        
+    return ratio;
 }
 
 inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
@@ -107,20 +107,20 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
         getTransformFromTree(params_.fixed_frame_id, input_msg.header.frame_id, &T_fixed_input_mat/*, stamp_*/);
     // Eigen::Matrix4d invTransformCloud = transformCloud.inverse();
 
-    // transform mainCloud (default identity), 
-    // downsample (default true, 0.01m res), 
-    // normal estimation and init mainNormals with output, 
-    // filter ghost/shadow points (nonexistent points at discontinuities due to sensor noise), 
-    // extract floor and init floorCloud with output, 
+    // transform mainCloud (default identity),
+    // downsample (default true, 0.01m res),
+    // normal estimation and init mainNormals with output,
+    // filter ghost/shadow points (nonexistent points at discontinuities due to sensor noise),
+    // extract floor and init floorCloud with output,
     // init prepNorMap with xyz's of mainCloud points and rgb's of mainCloud normals
     pre.run(mainCloud, mainNormals, coloredNormalCloud, floorCloud, floorNormals, T_fixed_input_mat);
     double preAE = pcl::getTime();
     ROS_INFO("Preanalysis took: %f",preAE-preAS);
 
     pubMainCloud(&main_cloud_pub_, *mainCloud, params_.fixed_frame_id, stamp_);
-    pubNormalCloud(&normal_cloud_pub_, *mainCloud, *mainNormals, params_.fixed_frame_id, stamp_);
-    pubCurvature(&curvature_pub_, *mainCloud, *mainNormals, params_.fixed_frame_id, stamp_);
-    
+    // pubNormalCloud(&normal_cloud_pub_, *mainCloud, *mainNormals, params_.fixed_frame_id, stamp_);
+    // pubCurvature(&curvature_pub_, *mainCloud, *mainNormals, params_.fixed_frame_id, stamp_);
+
 // Starting segmentation //
 
     // ROS_INFO("Starting segmentation");
@@ -128,10 +128,10 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
     // regions segRegions;
     // int segMode = params_.segmentationmode;
     // PointCloudT::Ptr segCloud = mainCloud;
-    // NormalCloud::Ptr segNormals = mainNormals; 
+    // NormalCloud::Ptr segNormals = mainNormals;
     // // PointCloudT::Ptr segCloud = floorCloud;
     // // NormalCloud::Ptr segNormals = floorNormals;
-    // switch (segMode) 
+    // switch (segMode)
     // {
     //     case 0:
     //     {
@@ -175,7 +175,7 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
     //     busy = false;
     //     return;
     // }
-    
+
     // segmentPatch largestPatch;
     // for (uint i=0; i<segRegions.size(); i++)
     // {
@@ -201,9 +201,9 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
     float normal_gain = params_.costmap.normal_gain;
 
     // PointCloudT::Ptr costCloud = mainCloud;
-    // NormalCloud::Ptr costNormals = mainNormals; 
+    // NormalCloud::Ptr costNormals = mainNormals;
     // // PointCloudT::Ptr costCloud = floorCloud;
-    // // NormalCloud::Ptr costNormals = floorNormals; 
+    // // NormalCloud::Ptr costNormals = floorNormals;
     // // PointCloudT::Ptr costCloud; costCloud.reset(new PointCloudT(largestPatch.segmentCloud));
     // // NormalCloud::Ptr costNormals; costNormals.reset(new NormalCloud(largestPatch.normalCloud));
     // ROS_INFO("costCloud has %d points",costNormals->size());
@@ -293,7 +293,7 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
     //     for(size_t pointIdx = 0; pointIdx < costCloud->size(); pointIdx++)
     //     {
     //         PointT thisPt = costCloud->at(pointIdx);
-            
+
     //         pcl::PointXYZI cloud_pt;
     //         cloud_pt.x = thisPt.x;
     //         cloud_pt.y = thisPt.y;
@@ -462,7 +462,7 @@ void cfgCb(curvy_terrain_mapper::CurvyTerrainMapperConfig &config, uint32_t leve
 }
 
 int main (int argc, char *argv[])
-{  
+{
     ros::init(argc, argv, "curvy_terrain_mapper");
     ros::NodeHandle n("~");
     ros::Subscriber input_sub = n.subscribe("input_cloud",1,&inputCB);
@@ -512,14 +512,13 @@ int main (int argc, char *argv[])
     // params_.fixed_frame_id = config_["ros"]["fixed_frame_id"].as<std::string>();
 
     main_cloud_pub_ = n.advertise<sensor_msgs::PointCloud2>("main_cloud",1);
-    normal_cloud_pub_ = n.advertise<visualization_msgs::Marker>("normal_cloud",1);
-    curvature_pub_ = n.advertise<visualization_msgs::Marker>("curvature",1);
-    costmap_pub_ = n.advertise<visualization_msgs::Marker>("costmap",1);
-    costmap3d_pub_ = n.advertise<visualization_msgs::Marker>("costmap3d",1);
-    seg_regions_pub_ = n.advertise<visualization_msgs::Marker>("segmented_regions", 1);
+    // normal_cloud_pub_ = n.advertise<visualization_msgs::Marker>("normal_cloud",1);
+    // curvature_pub_ = n.advertise<visualization_msgs::Marker>("curvature",1);
+    // costmap_pub_ = n.advertise<visualization_msgs::Marker>("costmap",1);
+    // costmap3d_pub_ = n.advertise<visualization_msgs::Marker>("costmap3d",1);
+    // seg_regions_pub_ = n.advertise<visualization_msgs::Marker>("segmented_regions", 1);
     costcloud_pub_ = n.advertise<sensor_msgs::PointCloud2>("cost_cloud",1);
     costnormcloud_pub_ = n.advertise<sensor_msgs::PointCloud2>("cost_norm_cloud",1);
 
     ros::spin();
 }
-

@@ -26,7 +26,7 @@
 
     <!-- <node pkg="topic_tools" type="relay" name="cloud_relay" args="/points /cloud" /> -->
 
-    <include file="$(find curvy_terrain_mapper)/launch/subt_demo.launch">
+    <include file="$(find curvy_terrain_mapper)/launch/demo.launch">
         <arg name="name_prefix" value="_$(arg vehicle_name)"/>
         <arg name="launch_rviz" value="false"/>
         <arg name="enable_debug" value="$(arg enable_debug)"/>

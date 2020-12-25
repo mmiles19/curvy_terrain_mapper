@@ -5,7 +5,8 @@
     <arg name="enable_octomap" default="true"/>
     <arg name="enable_marble_mapping" default="false"/>
     <arg name="enable_crop" default="true"/>
-    
+    <arg name="rosbag_or_sim" default="true"/>
+
     <arg name="M_PI" value="3.14159265"/>
 
     <param name="use_sim_time" value="true"/>
@@ -37,8 +38,13 @@
         <arg name="child_frame_id" value="X2/base_link"/>
     </include>
 
-<!-- STAIRS PUBLISHER -->
-    <!-- <node pkg="rosbag" type="play" name="bag_player" output="log"
-    args="--loop $(arg filepath) "/> -->
+
+    <include file="$(find curvy_terrain_mapper)/launch/subt_sim.launch" unless="$(arg rosbag_or_sim)">
+      <arg name="config" value="solo"/>
+    </include>
+
+    <!-- STAIRS PUBLISHER -->
+    <node pkg="rosbag" type="play" name="bag_player" output="log" if="$(arg rosbag_or_sim)"
+    args="--loop $(arg filepath) "/>
 
 </launch>

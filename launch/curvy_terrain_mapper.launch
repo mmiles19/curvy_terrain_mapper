@@ -1,9 +1,15 @@
 <launch>
 
+    <arg name="name_prefix" default=""/>
     <arg name="enable_debug"    default="false"/>
-    <arg name="input_cloud_topic" default="cloud"/>
+    <arg name="input_cloud_topic" default="/points"/>
+    <arg name="main_cloud_topic" default="/main_cloud"/>
+    <arg name="cost_cloud_topic" default="/cost_cloud"/>
+    <arg name="cost_norm_cloud_topic"  default="/cost_norm_cloud"/>
     <arg name="fixed_frame_id" default="map"/>
+    <arg name="launch_rviz" default="true"/>
     <!-- <arg name="pub_viz" default="true"/> -->
+
     <arg name="preanalysis/dsFlag" default="true"/>
     <arg name="preanalysis/dsResolution" default="0.05"/>
     <arg name="preanalysis/neNeighMethod" default="0"/>
@@ -34,6 +40,7 @@
     <arg name="regiongrowing/updateFlag" default="true"/>
     <arg name="regiongrowing/pointUpdateFlag" default="true"/>
     <arg name="regiongrowing/updateInterval" default="100"/>
+
     <arg name="costmap/normal_gain" default="2.0"/>
     <arg name="costmap/curv_gain" default="10.0"/>
     <arg name="costmap/min_saturation_cost" default="0.0"/>
@@ -43,9 +50,12 @@
 
     <arg name="launch_prefix" default="gdb -ex run --args" if="$(eval arg('enable_debug'))"/>
     <arg name="launch_prefix" default="" unless="$(eval arg('enable_debug'))"/>
-    
-    <node pkg="curvy_terrain_mapper" type="curvy_terrain_mapper_node" name="curvy_terrain_mapper" output="log" respawn="true" launch-prefix="$(arg launch_prefix)">
+
+    <node pkg="curvy_terrain_mapper" type="curvy_terrain_mapper_node" name="curvy_terrain_mapper$(arg name_prefix)" output="log" respawn="true" launch-prefix="$(arg launch_prefix)">
         <remap from="~input_cloud" to="$(arg input_cloud_topic)"/>
+        <remap from="~main_cloud" to="$(arg main_cloud_topic)"/>
+        <remap from="~cost_cloud" to="$(arg cost_cloud_topic)"/>
+        <remap from="~cost_norm_cloud" to="$(arg cost_norm_cloud_topic)"/>
         <param name="~fixed_frame_id" value="$(arg fixed_frame_id)"/>
         <!-- <param name="~pub_viz" value="true"/> -->
         <param name="~preanalysis/dsFlag" value="$(arg preanalysis/dsFlag)"/>
@@ -86,7 +96,7 @@
         <param name="~costmap/set_max_saturation_cost_to_max_cost" value="$(arg costmap/set_max_saturation_cost_to_max_cost)"/>
     </node>
 
-    <node pkg="rviz" type="rviz" name="rviz" output="log"
-    args="-d /home/mike/.rviz/curvy_terrain_mapper.rviz"/>
+    <node pkg="rviz" type="rviz" name="rviz" output="log" if="$(arg launch_rviz)"
+    args="-d $(find curvy_terrain_mapper)/curvy_terrain_mapper.rviz"/>
 
 </launch>
