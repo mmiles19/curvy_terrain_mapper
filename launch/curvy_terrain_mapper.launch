@@ -1,13 +1,13 @@
 <launch>
 
-    <arg name="name_prefix" default=""/>
+    <arg name="ns" default=""/>
     <arg name="enable_debug"    default="false"/>
     <arg name="input_cloud_topic" default="/points"/>
     <arg name="main_cloud_topic" default="/main_cloud"/>
     <arg name="cost_cloud_topic" default="/cost_cloud"/>
     <arg name="cost_norm_cloud_topic"  default="/cost_norm_cloud"/>
     <arg name="fixed_frame_id" default="map"/>
-    <arg name="launch_rviz" default="true"/>
+    <arg name="enable_rviz" default="true"/>
     <!-- <arg name="pub_viz" default="true"/> -->
 
     <arg name="preanalysis/dsFlag" default="true"/>
@@ -51,7 +51,9 @@
     <arg name="launch_prefix" default="gdb -ex run --args" if="$(eval arg('enable_debug'))"/>
     <arg name="launch_prefix" default="" unless="$(eval arg('enable_debug'))"/>
 
-    <node pkg="curvy_terrain_mapper" type="curvy_terrain_mapper_node" name="curvy_terrain_mapper$(arg name_prefix)" output="log" respawn="true" launch-prefix="$(arg launch_prefix)">
+    <arg name="curvy_terrain_mapper_name"     default="curvy_terrain_mapper"           if="$(eval ns=='')"/>
+    <arg name="curvy_terrain_mapper_name"     default="curvy_terrain_mapper_$(arg ns)"     unless="$(eval ns=='')"/>
+    <node pkg="curvy_terrain_mapper" type="curvy_terrain_mapper_node" name="$(arg curvy_terrain_mapper_name)" output="log" respawn="true" launch-prefix="$(arg launch_prefix)">
         <remap from="~input_cloud" to="$(arg input_cloud_topic)"/>
         <remap from="~main_cloud" to="$(arg main_cloud_topic)"/>
         <remap from="~cost_cloud" to="$(arg cost_cloud_topic)"/>
@@ -96,7 +98,9 @@
         <param name="~costmap/set_max_saturation_cost_to_max_cost" value="$(arg costmap/set_max_saturation_cost_to_max_cost)"/>
     </node>
 
-    <node pkg="rviz" type="rviz" name="rviz" output="log" if="$(arg launch_rviz)"
+    <arg name="rviz_name"     default="rviz"           if="$(eval ns=='')"/>
+    <arg name="rviz_name"     default="rviz_$(arg ns)"     unless="$(eval ns=='')"/>
+    <node pkg="rviz" type="rviz" name="$(arg rviz_name)" output="log" if="$(arg enable_rviz)"
     args="-d $(find curvy_terrain_mapper)/curvy_terrain_mapper.rviz"/>
 
 </launch>
