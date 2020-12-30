@@ -1,4 +1,6 @@
 <launch>
+    <!-- <param name="use_sim_time" value="true"/> -->
+    <param name="use_system_time" value="true"/>
 
     <arg name="enable_rosbag"   default="true"/>
     <arg name="rosbag_file"     default="$(env HOME)/subt_tap_team1.bag"/>
@@ -22,11 +24,12 @@
         <arg name="enable_crop"             value="$(arg enable_crop)"/>
         <arg name="octomap_resolution"      value="$(arg octomap_resolution)"/>
         <arg name="range"                   value="$(arg range)"/>
+        <arg name="enable_bag_comms"        value="true"/>
         <arg name="enable_rviz_X1"          value="$(arg enable_rviz_X1)"/>
         <arg name="enable_rviz_X2"          value="$(arg enable_rviz_X2)"/>
     </include>
 
-    <node pkg="rosbag" type="play" name="bag_player" output="log" if="$(arg enable_rosbag)"
-    args="-l $(arg rosbag_file) "/>
+    <node pkg="rosbag" type="play" name="bag_player" output="log" if="$(arg enable_rosbag)" 
+    args="-l --clock $(arg rosbag_file) "/>
 
 </launch>

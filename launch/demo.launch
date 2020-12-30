@@ -51,6 +51,7 @@
             <arg name="sensor_model/max"        value="0.97"/>
             <arg name="compress_map"            value="true"/>
         </include>
+
         <include file="$(find marble_mapping)/launch/marble_mapping.launch" if="$(arg enable_marble_mapping)">
             <arg name="ns"             value="$(arg ns)"/>
             <arg name="cloud_in"                 value="/$(arg input_cloud_topic)/cost_norm_cloud/cropped" if="$(arg enable_crop)"/>
@@ -65,12 +66,13 @@
             <arg name="sensor_model/max"         value="0.97"/>
             <arg name="publish_merged_full"      value="true"/>
             <arg name="publish_point_cloud_diff" value="true"/>
+            <!-- <arg name="publish_neighbor_maps"    value="true"/> -->
         </include>
     </group>
 
     <arg name="box_filter_name"     default="box_filter"           if="$(eval ns=='')"/>
     <arg name="box_filter_name"     default="box_filter_$(arg ns)"     unless="$(eval ns=='')"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg box_filter_name)" args="standalone pcl/CropBox" output="screen" if="$(arg enable_crop)">
+    <node pkg="nodelet" type="nodelet" name="$(arg box_filter_name)" args="standalone pcl/CropBox" output="log" if="$(arg enable_crop)">
       <remap from="~input" to="/$(arg input_cloud_topic)/cost_norm_cloud" />
       <remap from="~output" to="/$(arg input_cloud_topic)/cost_norm_cloud/cropped" />
       <param name="~input_frame" value="$(arg child_frame_id)"/>

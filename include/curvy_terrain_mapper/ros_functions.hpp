@@ -231,12 +231,12 @@ inline void pubRegions(ros::Publisher* pub, regions segments, std::string fixed_
 // inline void getTransformFromTree(std::string parent_frame_id, std::string child_frame_id, Eigen::Transformd* tform)
 inline void getTransformFromTree(std::string parent_frame_id, std::string child_frame_id, Eigen::Matrix4d* tform_mat, ros::Time stamp=ros::Time(0))
 {
-    ROS_INFO("Transforming cloud from %s to %s", child_frame_id.c_str(), parent_frame_id.c_str());
+    // ROS_INFO("Transforming cloud from %s to %s", child_frame_id.c_str(), parent_frame_id.c_str());
     tf::TransformListener listener;
     tf::StampedTransform tform_msg;
     try
     {
-        listener.waitForTransform(parent_frame_id, child_frame_id, ros::Time::now(), ros::Duration(0.5));
+        listener.waitForTransform(parent_frame_id, child_frame_id, ros::Time::now(), ros::Duration(1.0));
         listener.lookupTransform(parent_frame_id, child_frame_id, stamp, tform_msg);
     }
     catch (tf::TransformException ex)

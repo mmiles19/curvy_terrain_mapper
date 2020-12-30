@@ -8,7 +8,8 @@
     <arg name="enable_octomap" default="true"/>
     <arg name="enable_marble_mapping" default="false"/>
     <arg name="enable_crop" default="true"/>
-    <arg name="fixed_frame_id" default="$(arg vehicle_name)/map"/>
+    <arg name="fixed_frame_id" default="world"/>
+    <!-- <arg name="fixed_frame_id" default="$(arg vehicle_name)/map"/> -->
     <arg name="child_frame_id" default="$(arg vehicle_name)/base_link"/>
     <arg name="input_cloud_topic" default="$(arg vehicle_name)/front_down_rgbd_camera/depth/points"/>
     <arg name="octomap_resolution" default="0.2"/>
