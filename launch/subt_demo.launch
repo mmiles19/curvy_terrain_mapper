@@ -8,10 +8,14 @@
     <arg name="enable_octomap" default="true"/>
     <arg name="enable_marble_mapping" default="false"/>
     <arg name="enable_crop" default="true"/>
+    <arg name="enable_fusion" default="true"/>
     <arg name="fixed_frame_id" default="world"/>
     <!-- <arg name="fixed_frame_id" default="$(arg vehicle_name)/map"/> -->
     <arg name="child_frame_id" default="$(arg vehicle_name)/base_link"/>
-    <arg name="input_cloud_topic" default="$(arg vehicle_name)/front_down_rgbd_camera/depth/points"/>
+    <!-- <arg name="input_cloud_topic" default="$(arg vehicle_name)/front_down_rgbd_camera/depth/points"/> -->
+    <!-- <arg name="input_cloud_topic" default="$(arg vehicle_name)/merged_points"/> -->
+    <arg name="input_cloud_topic" default="$(arg vehicle_name)/octomap_in"/>
+    <!-- <arg name="input_cloud_topic" default="$(arg vehicle_name)/points"/> -->
     <arg name="octomap_resolution" default="0.2"/>
     <arg name="range" default="20.0"/>
 
@@ -23,11 +27,24 @@
         <arg name="enable_octomap" value="$(arg enable_octomap)"/>
         <arg name="enable_marble_mapping" value="$(arg enable_marble_mapping)"/>
         <arg name="enable_crop" value="$(arg enable_crop)"/>
+        <arg name="enable_fusion" value="$(arg enable_fusion)"/>
         <arg name="fixed_frame_id" value="$(arg fixed_frame_id)"/>
         <arg name="child_frame_id" value="$(arg child_frame_id)"/>
         <arg name="input_cloud_topic" value="$(arg input_cloud_topic)"/>
         <arg name="octomap_resolution" value="$(arg octomap_resolution)"/>
         <arg name="range" value="$(arg range)"/>
+    </include>
+
+    <node pkg="topic_tools" type="relay" name="$(arg vehicle_name)_lid_relay" args="$(arg vehicle_name)/points                                $(arg vehicle_name)/mixed_points" if="$(arg enable_fusion)">
+    <node pkg="topic_tools" type="relay" name="$(arg vehicle_name)_cam_relay" args="$(arg vehicle_name)/front_down_rgbd_camera/depth/points   $(arg vehicle_name)/mixed_points" if="$(arg enable_fusion)">
+    <include file="$(find pcl_ros_toolbox)/launch/mixed_concatenate_server.launch" if="$(arg enable_fusion)">
+        <arg name="input_topic" value="$(arg vehicle_name)/mixed_points"/>
+        <arg name="output_topic" value="$(arg input_cloud_topic)"/>
+        <arg name="common_frame_id" value="$(arg fixed_frame_id)"/>
+        <arg name="output_resolution" value="0.01"/>
+        <arg name="termination_method" value="time_window"/>
+        <arg name="termination_value" value="250"/>
+        <arg name="time_window_inconsistency_thresh" value="0"/>
     </include>
 
 </launch>

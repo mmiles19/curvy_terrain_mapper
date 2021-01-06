@@ -93,5 +93,4 @@
     <arg name="cropped_cloud_relay_name"     default="cropped_cloud_relay_$(arg ns)"     unless="$(eval ns=='')"/>
     <node pkg="topic_tools" type="relay" name="$(arg cropped_cloud_relay_name)" args="$(arg input_cloud_topic)/cost_norm_cloud $(arg input_cloud_topic)/cost_norm_cloud/cropped" unless="$(arg enable_crop)"/>
 
-
 </launch>

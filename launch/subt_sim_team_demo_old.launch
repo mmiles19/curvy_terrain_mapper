@@ -1,0 +1,98 @@
+<launch>
+
+    <arg name="enable_debug" default="false"/>
+    <arg name="enable_ctm" default="true"/>
+    <arg name="enable_octomap" default="true"/>
+    <arg name="enable_marble_mapping" default="false"/>
+    <arg name="enable_crop" default="true"/>
+    <arg name="octomap_resolution" default="0.2"/>
+    <arg name="range" default="20.0"/>
+
+    <arg name="enable_bag_comms" default="false"/>
+    <arg name="enable_rviz_X1" default="false"/>
+    <arg name="enable_rviz_X2" default="false"/>
+    <arg name="launch_sim" default="false"/>
+
+    <include file="$(find curvy_terrain_mapper)/launch/subt_demo.launch">
+        <arg name="vehicle_name" value="X1"/>
+        <arg name="enable_debug" value="$(arg enable_debug)"/>
+        <arg name="enable_rviz" value="$(arg enable_rviz_X1)"/>
+        <arg name="enable_ctm" value="$(arg enable_ctm)"/>
+        <arg name="enable_octomap" value="$(arg enable_octomap)"/>
+        <arg name="enable_marble_mapping" value="$(arg enable_marble_mapping)"/>
+        <arg name="enable_crop" value="$(arg enable_crop)"/>
+        <!-- <arg name="fixed_frame_id" value="$(arg fixed_frame_id)"/> -->
+        <!-- <arg name="child_frame_id" value="$(arg child_frame_id)"/> -->
+        <!-- <arg name="input_cloud_topic" value="$(arg input_cloud_topic)"/> -->
+        <arg name="octomap_resolution" value="$(arg octomap_resolution)"/>
+        <arg name="range" value="$(arg range)"/>
+    </include>
+    <include file="$(find marble_multi_agent)/launch/multi_agent_virtual.launch">
+        <arg name="vehicle" value="X1"/>
+        <arg name="potentialNeighbors" value="X2"/>
+    </include>
+    <include file="$(find marble_virtual_comms)/launch/marble_virtual_comms.launch" if="$(eval enable_marble_mapping and not enable_bag_comms)">
+        <arg name="vehicle" value="X1"/>
+    </include>
+
+    <include file="$(find curvy_terrain_mapper)/launch/subt_demo.launch">
+        <arg name="vehicle_name" value="X2"/>
+        <arg name="enable_debug" value="$(arg enable_debug)"/>
+        <arg name="enable_rviz" value="$(arg enable_rviz_X2)"/>
+        <arg name="enable_ctm" value="$(arg enable_ctm)"/>
+        <arg name="enable_octomap" value="$(arg enable_octomap)"/>
+        <arg name="enable_marble_mapping" value="$(arg enable_marble_mapping)"/>
+        <arg name="enable_crop" value="$(arg enable_crop)"/>
+        <!-- <arg name="fixed_frame_id" value="$(arg fixed_frame_id)"/> -->
+        <!-- <arg name="child_frame_id" value="$(arg child_frame_id)"/> -->
+        <!-- <arg name="input_cloud_topic" value="$(arg input_cloud_topic)"/> -->
+        <arg name="octomap_resolution" value="$(arg octomap_resolution)"/>
+        <arg name="range" value="$(arg range)"/>
+    </include>
+    <include file="$(find marble_multi_agent)/launch/multi_agent_virtual.launch">
+        <arg name="vehicle" value="X2"/>
+        <arg name="potentialNeighbors" value="X1"/>
+    </include>
+    <include file="$(find marble_virtual_comms)/launch/marble_virtual_comms.launch" if="$(eval enable_marble_mapping and not enable_bag_comms)">
+        <arg name="vehicle" value="X2"/>
+    </include>
+
+    <group if="$(arg enable_marble_mapping)">
+         <group if="$(arg enable_bag_comms)">
+            <include file="$(find marble_mapping)/launch/merge_diffs.launch" if="$(arg enable_marble_mapping)">
+                    <arg name="frame_id"                 value="world"/>
+                    <arg name="merged_resolution"        value="$(arg octomap_resolution)"/>
+                    <arg name="publish_merged_full"      value="true"/>
+                    <arg name="publish_point_cloud_diff" value="true"/>
+                    <arg name="num_threads"              value="3"/>
+            </include>
+            <node pkg="topic_tools" name="map_relay" type="relay" args="/X1/map_diff /robot_data/X1/map_diff"/>
+            <node pkg="topic_tools" name="ma_relay" type="relay" args="/X1/mesh_comm/send/ma_data /robot_data/X1/ma_data"/>
+            <node pkg="topic_tools" name="map_relay2" type="relay" args="/X2/map_diff /robot_data/X2/map_diff"/>
+            <node pkg="topic_tools" name="ma_relay2" type="relay" args="/X2/mesh_comm/send/ma_data /robot_data/X2/ma_data"/>
+
+            <!-- <include file="$(find marble_multi_agent)/launch/multi_agent_virtual.launch">
+                <arg name="vehicle" value="Base"/>
+                <arg name="type" value="base"/>
+                <arg name="potentialNeighbors" value="X1,X2"/>
+            </include> -->
+        </group>
+
+        <group unless="$(arg enable_bag_comms)">
+        </group>
+     </group>
+
+     <include file="$(find carplanner_msgs)/launch/subt_sim.launch" if="$(arg launch_sim)">
+         <arg name="config"               value="team"/>
+         <arg name="sensors"              value="camera"/>
+         <arg name="launch_delay"         value="0"/>
+         <arg name="enable_localization"  value="true"/>
+         <arg name="enable_mapping"       value="false"/>
+         <arg name="enable_multi_agent"   value="true"/>
+         <arg name="enable_planning"      value="false"/>
+         <arg name="enable_control"       value="false"/>
+         <arg name="enable_artifacts"     value="false"/>
+         <arg name="enable_rviz"          value="false"/>
+         <arg name="motion_on_startup"    value="false"/>
+     </include>
+</launch>

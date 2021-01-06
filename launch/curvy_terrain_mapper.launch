@@ -100,7 +100,7 @@
 
     <arg name="rviz_name"     default="rviz"           if="$(eval ns=='')"/>
     <arg name="rviz_name"     default="rviz_$(arg ns)"     unless="$(eval ns=='')"/>
-    <node pkg="rviz" type="rviz" name="$(arg rviz_name)" output="screen" if="$(arg enable_rviz)" 
+    <node pkg="rviz" type="rviz" name="$(arg rviz_name)" output="log" if="$(arg enable_rviz)" 
     args="-d $(find curvy_terrain_mapper)/curvy_terrain_mapper.rviz"/>
 
 </launch>
