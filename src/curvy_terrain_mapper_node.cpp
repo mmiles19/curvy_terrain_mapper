@@ -89,6 +89,12 @@ inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
     ROS_INFO("---");
     ROS_INFO("Received point cloud with %d points",mainCloud->width*mainCloud->height);
 
+    if (mainCloud->width*mainCloud->height==0)
+    {
+        ROS_WARN("Received empty cloud. Skipping.");
+        return;
+    }
+
 	ROS_INFO("Starting preanalysis");
     double preAS = pcl::getTime();
 
