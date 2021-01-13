@@ -53,7 +53,7 @@
 
     <arg name="curvy_terrain_mapper_name"     default="curvy_terrain_mapper"           if="$(eval ns=='')"/>
     <arg name="curvy_terrain_mapper_name"     default="curvy_terrain_mapper_$(arg ns)"     unless="$(eval ns=='')"/>
-    <node pkg="curvy_terrain_mapper" type="curvy_terrain_mapper_node" name="$(arg curvy_terrain_mapper_name)" output="log" respawn="true" launch-prefix="$(arg launch_prefix)">
+    <node pkg="curvy_terrain_mapper" type="curvy_terrain_mapper_node" name="$(arg curvy_terrain_mapper_name)" output="screen" respawn="true" launch-prefix="$(arg launch_prefix)">
         <remap from="~input_cloud" to="$(arg input_cloud_topic)"/>
         <remap from="~main_cloud" to="$(arg main_cloud_topic)"/>
         <remap from="~cost_cloud" to="$(arg cost_cloud_topic)"/>
