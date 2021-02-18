@@ -1,14 +1,41 @@
 <launch>
 
-  <arg name="config" default="solo"/>
-  <arg name="enable_mapping" default="true"/>
-  <arg name="enable_rough_mapping" default="false"/>
-  <arg name="range" default="20.0"/>
+  <param name="use_sim_time"  value="true"/>
+
+
+  <arg name="models"        default="Husky"/>
+  <arg name="config"        default="solo"/>
+  <arg name="sensors"       default="lite"/>
+  <arg name="groundtruth"   default="true"/>
+  <arg name="remote_sim"    default="remote"/>
+  <arg name="world"         default="simple_cave_01"/>
+
+    <!-- vehicle_name:=X1
+    vehicle_type:=Husky
+    agents:=X1,X2
+    enable_localization:=$(eval not groundtruth)
+    enable_mapping:=1
+    enable_multi_agent:=1
+    enable_planning:=1
+    enable_control:=1
+    enable_artifacts:=0
+    enable_rviz:=0
+    is_air:=0
+    motion_on_startup:=1
+    min_cluster_size:=50
+    map_resolution:=0.15
+    merged_resolution:=0.15
+    mapping_range:=5.0
+    planning_frame:=world -->
+  <arg name="enable_localization" default="$(eval not groundtruth)"/>
 
   <include file="$(find marble_common)/launch/sim/subt.launch">
-    <arg name="config" value="$(arg config)"/>
-    <arg name="sensors" value="lite"/>
-    <arg name="groundtruth" value="true"/>
+    <arg name="models"        value="$(arg models)"/>
+    <arg name="config"        value="$(arg config)"/>
+    <arg name="sensors"       value="$(arg sensors)"/>
+    <arg name="groundtruth"   value="$(arg groundtruth)"/>
+    <arg name="remote_sim"    value="$(arg remote_sim)"/>
+    <arg name="world"         value="$(arg world)"/>
   </include>
 
   <include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch">
@@ -29,44 +56,54 @@
   <include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch">
     <arg name="time"   value="20"/>
     <arg name="pkg"    value="marble_common"/>
-    <arg name="file"   value="X1.launch"/>
-    <arg name="value"  value="vehicle_name:=X1
-                              enable_localization:=true
-                              enable_mapping:=$(arg enable_mapping)
-                              enable_rough_mapping:=$(arg enable_rough_mapping)
-                              enable_multi_agent:=true
-                              enable_planning:=true
-                              enable_control:=true
-                              enable_artifacts:=false
-                              enable_rviz:=true
-                              motion_on_startup:=true
-                              map_resolution:=0.15
-                              merged_resolution:=0.15
-                              mapping_range:=$(arg range)
-                              planning_frame:=world
-                              controlDelay:=0"/>
+    <arg name="file"   value="ground.launch"/>
+    <arg name="value"  value="
+      vehicle_name:=X1
+      vehicle_type:=Husky
+      agents:=X1,X2
+      enable_localization:=$(arg enable_localization)
+      enable_mapping:=1
+      enable_multi_agent:=1
+      enable_planning:=1
+      enable_control:=1
+      enable_artifacts:=0
+      enable_rviz:=0
+      is_air:=0
+      motion_on_startup:=1
+      min_cluster_size:=50
+      map_resolution:=0.15
+      merged_resolution:=0.15
+      mapping_range:=5.0
+      planning_frame:=world
+      world:=$(arg world)
+      "/>
     <arg name="node_name" value="X1_timed_roslaunch"/>
   </include>
 
   <include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch" if="$(eval config=='team')">
     <arg name="time"   value="25"/>
     <arg name="pkg"    value="marble_common"/>
-    <arg name="file"   value="X2.launch"/>
-    <arg name="value"  value="vehicle_name:=X2
-                              enable_localization:=true
-                              enable_mapping:=$(arg enable_mapping)
-                              enable_rough_mapping:=$(arg enable_rough_mapping)
-                              enable_multi_agent:=true
-                              enable_planning:=true
-                              enable_control:=true
-                              enable_artifacts:=false
-                              enable_rviz:=false
-                              motion_on_startup:=true
-                              map_resolution:=0.15
-                              merged_resolution:=0.15
-                              mapping_range:=$(arg range)
-                              planning_frame:=world
-                              controlDelay:=60"/>
+    <arg name="file"   value="ground.launch"/>
+    <arg name="value"  value="
+      vehicle_name:=X2
+      vehicle_type:=Husky
+      agents:=X1,X2
+      enable_localization:=1
+      enable_mapping:=1
+      enable_multi_agent:=1
+      enable_planning:=1
+      enable_control:=1
+      enable_artifacts:=0
+      enable_rviz:=0
+      is_air:=0
+      motion_on_startup:=1
+      min_cluster_size:=50
+      map_resolution:=0.15
+      merged_resolution:=0.15
+      mapping_range:=5.0
+      planning_frame:=world
+      world:=simple_cave_01
+      "/>
     <arg name="node_name" value="X2_timed_roslaunch"/>
   </include>
 
