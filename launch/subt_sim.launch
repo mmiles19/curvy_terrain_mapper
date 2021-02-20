@@ -3,31 +3,26 @@
   <param name="use_sim_time"  value="true"/>
 
 
-  <arg name="models"        default="Husky"/>
-  <arg name="config"        default="solo"/>
-  <arg name="sensors"       default="lite"/>
-  <arg name="groundtruth"   default="true"/>
-  <arg name="remote_sim"    default="remote"/>
-  <arg name="world"         default="simple_cave_01"/>
-
-    <!-- vehicle_name:=X1
-    vehicle_type:=Husky
-    agents:=X1,X2
-    enable_localization:=$(eval not groundtruth)
-    enable_mapping:=1
-    enable_multi_agent:=1
-    enable_planning:=1
-    enable_control:=1
-    enable_artifacts:=0
-    enable_rviz:=0
-    is_air:=0
-    motion_on_startup:=1
-    min_cluster_size:=50
-    map_resolution:=0.15
-    merged_resolution:=0.15
-    mapping_range:=5.0
-    planning_frame:=world -->
+  <arg name="models"              default="Husky"/>
+  <arg name="config"              default="solo"/>
+  <arg name="sensors"             default="lite"/>
+  <arg name="groundtruth"         default="true"/>
+  <arg name="remote_sim"          default="remote"/>
+  <arg name="world"               default="simple_cave_01"/>
+  <arg name="agents"              default="X1,X2"/>
   <arg name="enable_localization" default="$(eval not groundtruth)"/>
+  <arg name="enable_mapping"      default="1"/>
+  <arg name="enable_multi_agent"  default="1"/>
+  <arg name="enable_planning"     default="1"/>
+  <arg name="enable_control"      default="0"/>
+  <arg name="enable_artifacts"    default="0"/>
+  <arg name="motion_on_startup"   default="0"/>
+  <arg name="min_cluster_size"    default="50"/>
+  <arg name="map_resolution"      default="0.15"/>
+  <arg name="merged_resolution"   default="0.15"/>
+  <arg name="mapping_range"       default="5.0"/>
+  <arg name="planning_frame"      default="world"/>
+
 
   <include file="$(find marble_common)/launch/sim/subt.launch">
     <arg name="models"        value="$(arg models)"/>
@@ -60,21 +55,21 @@
     <arg name="value"  value="
       vehicle_name:=X1
       vehicle_type:=Husky
-      agents:=X1,X2
+      agents:=$(arg agents)
       enable_localization:=$(arg enable_localization)
-      enable_mapping:=1
-      enable_multi_agent:=1
-      enable_planning:=1
-      enable_control:=1
-      enable_artifacts:=0
+      enable_mapping:=$(arg enable_mapping)
+      enable_multi_agent:=$(arg enable_multi_agent)
+      enable_planning:=$(arg enable_planning)
+      enable_control:=$(arg enable_control)
+      enable_artifacts:=$(arg enable_artifacts)
       enable_rviz:=0
       is_air:=0
-      motion_on_startup:=1
-      min_cluster_size:=50
-      map_resolution:=0.15
-      merged_resolution:=0.15
-      mapping_range:=5.0
-      planning_frame:=world
+      motion_on_startup:=$(arg motion_on_startup)
+      min_cluster_size:=$(arg min_cluster_size)
+      map_resolution:=$(arg map_resolution)
+      merged_resolution:=$(arg merged_resolution)
+      mapping_range:=$(arg mapping_range)
+      planning_frame:=$(arg planning_frame)
       world:=$(arg world)
       "/>
     <arg name="node_name" value="X1_timed_roslaunch"/>
@@ -87,22 +82,22 @@
     <arg name="value"  value="
       vehicle_name:=X2
       vehicle_type:=Husky
-      agents:=X1,X2
-      enable_localization:=1
-      enable_mapping:=1
-      enable_multi_agent:=1
-      enable_planning:=1
-      enable_control:=1
-      enable_artifacts:=0
+      agents:=$(arg agents)
+      enable_localization:=$(arg enable_localization)
+      enable_mapping:=$(arg enable_mapping)
+      enable_multi_agent:=$(arg enable_multi_agent)
+      enable_planning:=$(arg enable_planning)
+      enable_control:=$(arg enable_control)
+      enable_artifacts:=$(arg enable_artifacts)
       enable_rviz:=0
       is_air:=0
-      motion_on_startup:=1
-      min_cluster_size:=50
-      map_resolution:=0.15
-      merged_resolution:=0.15
-      mapping_range:=5.0
-      planning_frame:=world
-      world:=simple_cave_01
+      motion_on_startup:=$(arg motion_on_startup)
+      min_cluster_size:=$(arg min_cluster_size)
+      map_resolution:=$(arg map_resolution)
+      merged_resolution:=$(arg merged_resolution)
+      mapping_range:=$(arg mapping_range)
+      planning_frame:=$(arg planning_frame)
+      world:=$(arg world)
       "/>
     <arg name="node_name" value="X2_timed_roslaunch"/>
   </include>
