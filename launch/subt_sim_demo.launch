@@ -13,7 +13,7 @@
     <include file="$(find curvy_terrain_mapper)/launch/subt_demo.launch">
         <arg name="vehicle_name" value="$(arg vehicle_name)"/>
         <arg name="enable_debug" value="$(arg enable_debug)"/>
-        <arg name="enable_rviz" value="$(arg enable_rviz)"/>
+        <!-- <arg name="enable_rviz" value="$(arg enable_rviz)"/> -->
         <arg name="enable_ctm" value="$(arg enable_ctm)"/>
         <arg name="enable_octomap" value="$(arg enable_octomap)"/>
         <arg name="enable_marble_mapping" value="$(arg enable_marble_mapping)"/>
@@ -24,5 +24,22 @@
         <arg name="octomap_resolution" value="$(arg octomap_resolution)"/>
         <arg name="range" value="$(arg range)"/>
     </include>
+
+    <include file="$(find pcl_ros_toolbox)/launch/approx_time_concatenate_server.launch">
+        <arg name="ns"                value="$(arg vehicle_name)"/>
+        <arg name="input0_topic"      value="$(arg vehicle_name)/points" />
+        <arg name="input1_topic"      value="$(arg vehicle_name)/front_down_rgbd_camera/depth/points" />
+        <arg name="output_topic"      value="$(arg input_cloud_topic)" />
+        <arg name="output_resolution" value="$(arg octomap_resolution)"/>
+		<arg name="common_frame_id"   value="$(arg fixed_frame_id)"/>
+		<arg name="min_rate"          value="4"/>
+		<!-- <arg name="sync_queue_size"   value="$(arg sync_queue_size)"/>
+		<arg name="sub_queue_size"    value="$(arg sub_queue_size)"/> -->
+    </include>
+
+    <arg name="rviz_name"     default="rviz"           if="$(eval vehicle_name=='')"/>
+    <arg name="rviz_name"     default="rviz_$(arg vehicle_name)"     unless="$(eval vehicle_name=='')"/>
+    <node pkg="rviz" type="rviz" name="$(arg rviz_name)" output="log" if="$(arg enable_rviz)" 
+    args="-d $(find curvy_terrain_mapper)/curvy_terrain_mapper_$(arg vehicle_name).rviz"/>
 
 </launch>

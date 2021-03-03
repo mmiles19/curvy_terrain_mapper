@@ -1,0 +1,49 @@
+<launch>
+    <param name="use_sim_time" value="true"/>
+    <!-- <param name="use_system_time" value="true"/> -->
+
+    <arg name="enable_rosbag"   default="false"/>
+    <!-- <arg name="rosbag_file"     default="/media/mike/MIKEMDATA/2021_02_06_cu_south/H01_all_2021-02-06-15.bag"/>  -->
+    <arg name="rosbag_file"     default="/media/mike/MIKEMDATA/2021_02_06_cu_south/H01_sensors_tf_2021-02-06-15.bag"/> 
+
+    <arg name="enable_debug" default="false"/>
+    <arg name="enable_ctm" default="true"/>
+    <arg name="enable_octomap" default="true"/>
+    <arg name="enable_marble_mapping" default="false"/>
+    <arg name="enable_crop" default="true"/>
+    <arg name="octomap_resolution" default="0.2"/>
+    <arg name="range" default="20.0"/>
+    <arg name="trav_marker_density" default="0"/>
+
+    <arg name="enable_bag_comms" default="true"/>
+    <arg name="enable_rviz" default="false"/>
+
+    <arg name="enable_traversability"           default="true" />
+    <arg name="enable_traversability_sharing"   default="false" />
+
+    <node pkg="rosbag" type="play" name="bag_player" output="log" if="$(arg enable_rosbag)" launch-prefix="bash -c 'sleep 10; $0 $@'"
+    args="--clock $(arg rosbag_file)"/>
+
+    <include file="$(find curvy_terrain_mapper)/launch/subt_CUSOUTH_demo.launch">
+        <arg name="vehicle_name" value="H01"/>
+        <arg name="enable_debug" value="$(arg enable_debug)"/>
+        <arg name="enable_rviz" value="$(arg enable_rviz)"/>
+        <arg name="enable_ctm" value="$(arg enable_ctm)"/>
+        <arg name="enable_octomap" value="$(arg enable_octomap)"/>
+        <arg name="enable_marble_mapping" value="$(arg enable_marble_mapping)"/>
+        <arg name="enable_crop" value="$(arg enable_crop)"/>
+        <arg name="octomap_resolution" value="$(arg octomap_resolution)"/>
+        <arg name="range" value="$(arg range)"/>
+        <arg name="trav_marker_density" value="$(arg trav_marker_density)"/>
+        <arg name="enable_traversability"           value="$(arg enable_traversability)" />
+        <arg name="enable_traversability_sharing"   value="$(arg enable_traversability_sharing)" />
+    </include>
+    <include file="$(find marble_multi_agent)/launch/multi_agent_virtual.launch">
+        <arg name="vehicle" value="H01"/>
+        <arg name="potentialNeighbors" value="H02"/>
+    </include>
+    <include file="$(find marble_virtual_comms)/launch/marble_virtual_comms.launch" if="$(eval enable_marble_mapping and not enable_bag_comms)">
+        <arg name="vehicle" value="H01"/>
+    </include>
+
+</launch>

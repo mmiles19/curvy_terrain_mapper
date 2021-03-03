@@ -1,0 +1,72 @@
+<launch>
+    <arg name="vehicle_name"                    default="H01"/>
+    <arg name="enable_rviz"                     default="true"/>
+
+    <arg name="enable_debug"                    default="false"/>
+    <!-- <arg name="enable_ctm"                      default="true"/> -->
+    <arg name="enable_octomap"                  default="true"/>
+    <arg name="enable_marble_mapping"           default="false"/>
+    <arg name="enable_inner_crop"               default="true"/>
+    <arg name="enable_outer_crop"               default="false"/>
+    <arg name="enable_picoflexx_points"         default="true" />
+
+    <arg name="fixed_frame_id"                  default="H01/map"/>
+    <arg name="child_frame_id"                  default="$(arg vehicle_name)/base_link"/>
+    <arg name="input_cloud_topic"               default="octomap_in"/>
+    <arg name="octomap_resolution"              default="0.2"/>
+    <arg name="range"                           default="7.0"/>
+    <arg name="trav_marker_density"             default="2"/>
+    <arg name="trav_marker_lower_thresh"        default="0.5"/>
+    <arg name="trav_marker_upper_thresh"        default="1.0"/>
+    <arg name="enable_traversability"           default="true" />
+    <arg name="enable_traversability_sharing"   default="false" />
+
+    <group ns="$(arg vehicle_name)">
+        <node pkg="rviz" type="rviz" name="rviz" output="log" args="-d $(find curvy_terrain_mapper)/curvy_terrain_mapper_$(arg vehicle_name).rviz" if="$(arg enable_rviz)"/>
+
+        <include file="$(find curvy_terrain_mapper)/launch/demo2.launch">
+            <arg name="enable_debug"                    value="$(arg enable_debug)"/>
+            <!-- <arg name="enable_ctm"                      value="$(arg enable_ctm)"/> -->
+            <arg name="enable_octomap"                  value="$(arg enable_octomap)"/>
+            <arg name="enable_marble_mapping"           value="$(arg enable_marble_mapping)"/>
+            <arg name="enable_inner_crop"               value="$(arg enable_inner_crop)"/>
+            <arg name="enable_outer_crop"               value="$(arg enable_outer_crop)"/>
+            <arg name="fixed_frame_id"                  value="$(arg fixed_frame_id)"/>
+            <arg name="child_frame_id"                  value="$(arg child_frame_id)"/>
+            <arg name="input_cloud_topic"               value="$(arg input_cloud_topic)"/>
+            <arg name="octomap_resolution"              value="$(arg octomap_resolution)"/>
+            <arg name="range"                           value="$(arg range)"/>
+            <arg name="trav_marker_density"             value="$(arg trav_marker_density)"/>
+            <arg name="trav_marker_lower_thresh"        value="$(arg trav_marker_lower_thresh)"/>
+            <arg name="trav_marker_upper_thresh"        value="$(arg trav_marker_upper_thresh)"/>
+            <arg name="enable_traversability"           value="$(arg enable_traversability)" />
+            <arg name="enable_traversability_sharing"   value="$(arg enable_traversability_sharing)" />
+        </include>
+
+        <node pkg="nodelet" type="nodelet" name="voxel_grid_filter_nodelet" args="standalone pcl/VoxelGrid pcl_manager" output="log">
+            <!-- <remap from="~input"                  to="mixed_cloud" /> -->
+            <remap from="~input"                  to="$(arg input_cloud_topic)/prevoxfilter" />
+            <remap from="~output"                 to="$(arg input_cloud_topic)" />
+            <param name="filter_field_name"       value="z"/>
+            <param name="filter_limit_min"        value="-100000"/>
+            <param name="filter_limit_max"        value="100000"/>
+            <param name="filter_limit_negative"   value="false"/>
+            <param name="leaf_size"               value="$(arg octomap_resolution)/2"/>
+        </node>
+
+        <include file="$(find pcl_ros_toolbox)/launch/approx_time_concatenate_server.launch" if="$(eval enable_picoflexx_points and vehicle_name[0:1]=='H')">
+            <arg name="input0_topic"      value="horiz/os_cloud_node/points" />
+            <arg name="input1_topic"      value="pico_flexx_left/points" />
+            <arg name="input2_topic"      value="pico_flexx_right/points" />
+            <arg name="output_topic"      value="$(arg input_cloud_topic)" />
+            <arg name="output_resolution" value="$(arg octomap_resolution)"/>
+            <arg name="common_frame_id"   value="$(arg child_frame_id)"/>
+            <arg name="min_rate"          value="4"/>
+        </include>
+        <node pkg="topic_tools" type="relay" name="octomap_in_relay" args="horiz/os_cloud_node/points $(arg input_cloud_topic)/prevoxfilter" unless="$(arg enable_picoflexx_points)"/>
+
+        <!-- <include file="$(find curvy_terrain_mapper)/launch/spot_cam_points.launch" if="$(eval vehicle_name=='D01')"/> -->
+        <include file="$(find curvy_terrain_mapper)/launch/spot_cam_points.launch" if="$(eval vehicle_name[0:1]=='D')"/>
+    </group>
+
+</launch>

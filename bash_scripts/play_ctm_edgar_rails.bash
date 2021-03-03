@@ -1,0 +1,1 @@
+rosbag play --pause --clock --start=3300 /media/mike/MIKEMDATA/2021_02_23_Edgar/2021_02_23_edgar_H01/H01_sensors* /media/mike/MIKEMDATA/2021_02_23_Edgar/2021_02_23_edgar_H01/H01_tf* /media/mike/MIKEMDATA/2021_02_23_Edgar/2021_02_23_edgar_H01/H01_cameras*
