@@ -2,21 +2,22 @@
 
   <param name="use_sim_time"  value="true"/>
 
-
   <arg name="models"              default="Husky"/>
   <arg name="config"              default="solo"/>
   <arg name="sensors"             default="lite"/>
   <arg name="groundtruth"         default="true"/>
   <arg name="remote_sim"          default="remote"/>
-  <arg name="world"               default="simple_cave_01"/>
+  <!-- <arg name="world"               default="urban_circuit_practice_02"/> -->
+  <!-- <arg name="world"               default="cave_circuit_01"/> -->
+  <arg name="world"               default="cave_circuit_practice_02"/>
   <arg name="agents"              default="X1,X2"/>
   <arg name="enable_localization" default="$(eval not groundtruth)"/>
   <arg name="enable_mapping"      default="1"/>
   <arg name="enable_multi_agent"  default="1"/>
   <arg name="enable_planning"     default="1"/>
-  <arg name="enable_control"      default="0"/>
+  <arg name="enable_control"      default="1"/>
   <arg name="enable_artifacts"    default="0"/>
-  <arg name="motion_on_startup"   default="0"/>
+  <arg name="motion_on_startup"   default="1"/>
   <arg name="min_cluster_size"    default="50"/>
   <arg name="map_resolution"      default="0.15"/>
   <arg name="merged_resolution"   default="0.15"/>

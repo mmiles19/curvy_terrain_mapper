@@ -1,1 +1,1 @@
-rosbag record /clock /tf /tf_static /H01/octomap_in/prevoxfilter /H01/octomap_in/cost_norm_cloud /H01/octomap_point_cloud_centers /H01/rough_octomap_point_cloud_centers /H01/octomap_full /H01/rough_octomap_full /H01/occupied_cells_vis_array
+rosbag record /clock /tf /tf_static /H01/octomap_point_cloud_centers /H01/rough_octomap_point_cloud_centers /H01/octomap_full /H01/rough_octomap_full /H01/occupied_cells_vis_array /H01/octomap_in/cost_norm_cloud/cropped2
