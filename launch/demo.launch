@@ -5,7 +5,7 @@
     <arg name="enable_octomap" default="true"/>
     <arg name="enable_marble_mapping" default="false"/>
     <arg name="enable_crop" default="true"/>
-    <arg name="enable_rviz" default="true"/>
+    <!-- <arg name="enable_rviz" default="true"/> -->
 
     <arg name="ns" default=""/>
     <arg name="fixed_frame_id" default="map"/>
@@ -14,47 +14,72 @@
 
     <arg name="octomap_resolution" default="0.2"/>
     <arg name="range" default="20.0"/>
+    <arg name="trav_marker_density"     default="0"/>
+
+    <arg name="enable_traversability"           default="false" />
+    <arg name="enable_traversability_sharing"   default="false" />
 
 <!-- launch curvy_terrain_mapper -->
     <include file="$(find curvy_terrain_mapper)/launch/curvy_terrain_mapper.launch" if="$(arg enable_ctm)">
         <arg name="ns"                                              value="$(arg ns)"/>
-        <arg name="enable_rviz"                                     value="$(arg enable_rviz)"/>
-        <arg name="fixed_frame_id"                                  value="$(arg fixed_frame_id)"/>
+        <!-- <arg name="enable_rviz"                                     value="$(arg enable_rviz)"/> -->
+        <arg name="fixed_frame_id"                                  value="$(arg child_frame_id)"/>
         <arg name="input_cloud_topic"                               value="/$(arg input_cloud_topic)"/>
         <arg name="main_cloud_topic"                                value="/$(arg input_cloud_topic)/main_cloud"/>
         <arg name="cost_cloud_topic"                                value="/$(arg input_cloud_topic)/cost_cloud"/>
         <arg name="cost_norm_cloud_topic"                           value="/$(arg input_cloud_topic)/cost_norm_cloud"/>
         <arg name="enable_debug"                                    value="$(arg enable_debug)"/>
 
-        <arg name="preanalysis/dsFlag"                              value="true"/>
-        <arg name="preanalysis/dsResolution"                        value="0.05"/>
+        <!-- <arg name="preanalysis/dsFlag"                              value="true"/>
+        <arg name="preanalysis/dsResolution"                        value="0.05"/> -->
         <!-- <arg name="preanalysis/neNeighMethod"                       value="0"/>
         <arg name="preanalysis/neSearchNeighbours"                  value="24"/>
         <arg name="preanalysis/neSearchRadius"                      value="0.2"/> -->
-        <arg name="preanalysis/gpFlag"                              value="false"/>
+        <!-- <arg name="preanalysis/gpFlag"                              value="false"/> -->
         <!-- <arg name="preanalysis/gpAngle"                             value="1.0"/> -->
-        <arg name="preanalysis/pfActive"                            value="false"/>
+        <!-- <arg name="preanalysis/pfActive"                            value="false"/> -->
         <!-- <arg name="preanalysis/pfAngle"                             value="20.0"/> -->
-        <arg name="preanalysis/fsActive"                            value="false"/>
+        <!-- <arg name="preanalysis/fsActive"                            value="false"/> -->
         <!-- <arg name="preanalysis/fsAngle"                             value="30.0"/>
         <arg name="preanalysis/fsRange"                             value="0.05"/>
         <arg name="preanalysis/rob_x"                               value="0.0"/>
         <arg name="preanalysis/rob_y"                               value="0.0"/>
         <arg name="preanalysis/rob_z"                               value="0.0"/>
         <arg name="preanalysis/robAngle"                            value="0.0"/> -->
-        <arg name="preanalysis/dsMethod"                            value="false"/>
+        <!-- <arg name="preanalysis/dsMethod"                            value="false"/> -->
 
+        <!-- sim -->
+        <arg name="preanalysis/dsFlag"                              value="true"/>
+        <arg name="preanalysis/dsResolution"                        value="0.05"/>
+        <arg name="preanalysis/gpFlag"                              value="false"/>
+        <arg name="preanalysis/pfActive"                            value="false"/>
+        <arg name="preanalysis/fsActive"                            value="false"/>
+        <arg name="preanalysis/dsMethod"                            value="false"/>
         <arg name="costmap/normal_gain"                             value="4.0"/>
         <arg name="costmap/curv_gain"                               value="15.0"/>
         <arg name="costmap/min_saturation_cost"                     value="0.0"/>
         <arg name="costmap/max_saturation_cost"                     value="0.1"/>
         <arg name="costmap/set_min_saturation_cost_to_min_cost"     value="false"/>
         <arg name="costmap/set_max_saturation_cost_to_max_cost"     value="false"/>
+
+        <!-- CU South -->
+        <!-- <arg name="preanalysis/dsFlag"                              value="false"/>
+        <arg name="preanalysis/dsResolution"                        value="0.05"/>
+        <arg name="preanalysis/gpFlag"                              value="false"/>
+        <arg name="preanalysis/pfActive"                            value="false"/>
+        <arg name="preanalysis/fsActive"                            value="false"/>
+        <arg name="preanalysis/dsMethod"                            value="false"/>
+        <arg name="costmap/normal_gain"                             value="1.0"/>
+        <arg name="costmap/curv_gain"                               value="1.0"/>
+        <arg name="costmap/min_saturation_cost"                     value="0.0"/>
+        <arg name="costmap/max_saturation_cost"                     value="0.1"/>
+        <arg name="costmap/set_min_saturation_cost_to_min_cost"     value="true"/>
+        <arg name="costmap/set_max_saturation_cost_to_max_cost"     value="true"/> -->
     </include>
 
-    <group if="$(arg enable_octomap)">
+    <group if="$(arg enable_octomap)" ns="$(arg ns)">
         <include file="$(find octomap_server)/launch/octomap_mapping_rough.launch" unless="$(arg enable_marble_mapping)">
-            <arg name="ns"             value="$(arg ns)"/>
+            <!-- <arg name="ns"             value="$(arg ns)"/> -->
             <arg name="cloud_in"                value="/$(arg input_cloud_topic)/cost_norm_cloud/cropped" if="$(arg enable_crop)"/>
             <arg name="cloud_in"                value="/$(arg input_cloud_topic)/cost_norm_cloud" unless="$(arg enable_crop)"/>
             <arg name="frame_id"                value="$(arg fixed_frame_id)"/>
@@ -62,6 +87,7 @@
             <arg name="filter_speckles"         value="false"/>
             <arg name="filter_ground"           value="false"/>
             <arg name="sensor_model/max_range"  value="$(arg range)"/>
+            <arg name="trav_marker_density"             value="$(arg trav_marker_density)"/>
             <arg name="resolution"              value="$(arg octomap_resolution)"/>
             <arg name="sensor_model/hit"        value="0.9"/>
             <arg name="sensor_model/miss"       value="0.2"/>
@@ -71,10 +97,11 @@
         </include>
 
         <include file="$(find marble_mapping)/launch/marble_mapping.launch" if="$(arg enable_marble_mapping)">
-            <arg name="ns"             value="$(arg ns)"/>
-            <arg name="cloud_in"                 value="/$(arg input_cloud_topic)/cost_norm_cloud/cropped" if="$(arg enable_crop)"/>
+            <!-- <arg name="ns"             value="$(arg ns)"/> -->
+            <arg name="cloud_in"                 value="/$(arg input_cloud_topic)/cost_norm_cloud/cropped2" if="$(arg enable_crop)"/>
             <arg name="cloud_in"                 value="/$(arg input_cloud_topic)/cost_norm_cloud" unless="$(arg enable_crop)"/>
             <arg name="frame_id"                 value="$(arg fixed_frame_id)"/>
+            <!-- <arg name="base_frame_id"            value="$(arg child_frame_id)"/> -->
             <arg name="filter_ground"            value="false"/>
             <arg name="max_range"                value="$(arg range)"/>
             <arg name="resolution"               value="$(arg octomap_resolution)"/>
@@ -84,17 +111,19 @@
             <arg name="sensor_model/max"         value="0.97"/>
             <arg name="publish_merged_full"      value="true"/>
             <arg name="publish_point_cloud_diff" value="true"/>
+            <arg name="enable_traversability"           value="$(arg enable_traversability)" />
+            <arg name="enable_traversability_sharing"   value="$(arg enable_traversability_sharing)" />
             <!-- <arg name="publish_neighbor_maps"    value="true"/> -->
         </include>
     </group>
 
     <arg name="box_filter_name"     default="box_filter"           if="$(eval ns=='')"/>
     <arg name="box_filter_name"     default="box_filter_$(arg ns)"     unless="$(eval ns=='')"/>
-    <node pkg="nodelet" type="nodelet" name="$(arg box_filter_name)" args="standalone pcl/CropBox" output="log" if="$(arg enable_crop)">
+    <node pkg="nodelet" type="nodelet" name="$(arg box_filter_name)" args="standalone pcl/CropBox" output="screen" if="$(arg enable_crop)">
       <remap from="~input" to="/$(arg input_cloud_topic)/cost_norm_cloud" />
       <remap from="~output" to="/$(arg input_cloud_topic)/cost_norm_cloud/cropped" />
-      <param name="~input_frame" value="$(arg child_frame_id)"/>
-      <param name="~output_frame" value="$(arg child_frame_id)"/>
+      <!-- <param name="~input_frame" value="$(arg child_frame_id)"/>
+      <param name="~output_frame" value="$(arg child_frame_id)"/> -->
       <rosparam>
         # true: no points in the box, false: no points outside the box
         negative: true
@@ -106,6 +135,23 @@
         max_z: 0.5
       </rosparam>
     </node>
+
+    <!-- <arg name="box_filter_name2"     default="box_filter2"           if="$(eval ns=='')"/>
+    <arg name="box_filter_name2"     default="box_filter2_$(arg ns)"     unless="$(eval ns=='')"/>
+    <node pkg="nodelet" type="nodelet" name="$(arg box_filter_name2)" args="standalone pcl/CropBox" output="screen" if="$(arg enable_crop)">
+      <remap from="~input" to="/$(arg input_cloud_topic)/cost_norm_cloud/cropped" />
+      <remap from="~output" to="/$(arg input_cloud_topic)/cost_norm_cloud/cropped2" />
+      <rosparam>
+        # true: no points in the box, false: no points outside the box
+        negative: false
+        min_x: -1.0
+        max_x: 10.0
+        min_y: -5.0
+        max_y: 5.0
+        min_z: -0.25
+        max_z: 0.25
+      </rosparam>
+    </node> -->
 
     <arg name="cropped_cloud_relay_name"     default="cropped_cloud_relay"           if="$(eval ns=='')"/>
     <arg name="cropped_cloud_relay_name"     default="cropped_cloud_relay_$(arg ns)"     unless="$(eval ns=='')"/>

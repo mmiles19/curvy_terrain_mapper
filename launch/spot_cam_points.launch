@@ -1,0 +1,29 @@
+<launch>
+
+    <!-- <node pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz camera_info:=depth/frontleft/camera_info   image_rect:=depth/frontleft/image   points:=depth/frontleft/points"   name="frontleft_pcxyz"/>
+    <node pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz camera_info:=depth/frontright/camera_info  image_rect:=depth/frontright/image  points:=depth/frontright/points"  name="frontright_pcxyz"/>
+    <node pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz camera_info:=depth/left/camera_info        image_rect:=depth/left/image        points:=depth/left/points"        name="left_pcxyz"/>
+    <node pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz camera_info:=depth/right/camera_info       image_rect:=depth/right/image       points:=depth/right/points"       name="right_pcxyz"/>
+    <node pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz camera_info:=depth/back/camera_info        image_rect:=depth/back/image        points:=depth/back/points"        name="back_pcxyz"/> -->
+    <node pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz camera_info:=depth/frontleft/camera_info   image_rect:=depth/frontleft/image   points:=depth/all/points"   name="frontleft_pcxyz"/>
+    <node pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz camera_info:=depth/frontright/camera_info  image_rect:=depth/frontright/image  points:=depth/all/points"  name="frontright_pcxyz"/>
+    <node pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz camera_info:=depth/left/camera_info        image_rect:=depth/left/image        points:=depth/all/points"        name="left_pcxyz"/>
+    <node pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz camera_info:=depth/right/camera_info       image_rect:=depth/right/image       points:=depth/all/points"       name="right_pcxyz"/>
+    <node pkg="nodelet" type="nodelet" args="standalone depth_image_proc/point_cloud_xyz camera_info:=depth/back/camera_info        image_rect:=depth/back/image        points:=depth/all/points"        name="back_pcxyz"/>
+
+    <!-- <node pkg="topic_tools" type="relay" name="frontleft_relay"     args=" depth/frontleft/points depth/all/points  " />
+    <node pkg="topic_tools" type="relay" name="frontright_relay"    args=" depth/frontright/points depth/all/points " />
+    <node pkg="topic_tools" type="relay" name="left_relay"          args=" depth/left/points depth/all/points       " />
+    <node pkg="topic_tools" type="relay" name="right_relay"         args=" depth/right/points depth/all/points      " />
+    <node pkg="topic_tools" type="relay" name="back_relay"          args=" depth/back/points depth/all/points       " /> -->
+    <!-- <node pkg="topic_tools" type="relay" name="ouster_relay"        args=" os_cloud_node/points depth/all/points" /> -->
+  
+    <!-- <node pkg="topic_tools" type="mux" name="depth_all_points_mux" args="depth/frontleft/points depth/frontright/points depth/left/points depth/right/points depth/back/points mux:=depth/all/points"/> -->
+
+  <!-- <node pkg="nodelet" type="nodelet" name="depth_all_points_mux" args="standalone pcl/NodeletMUX" output="screen">
+    <rosparam>
+      input_topics: [depth/frontleft/points, depth/frontright/points, depth/left/points, depth/right/points, depth/back/points]
+    </rosparam>
+  </node> -->
+
+</launch>
