@@ -1,0 +1,206 @@
+<launch>
+    <!-- <arg name="vehicle_name"                    default="H01"/> -->
+    <arg name="fixed_frame_id"                  default="world"/>
+    <arg name="robot_frame_id"                  default="base_link"/>
+    <arg name="octomap_topic"                   default="merged_map"/>
+    <arg name="rough_octomap_topic"             default="merged_map"/>
+    <arg name="resolution"                      default="0.2"/>
+    <arg name="range"                           default="5.0"/>
+    <arg name="enable_traversability"           default="true"/>
+
+    <!-- <node pkg="marble_common" type="robot_tf2odom" name="tf2odomworld">
+        <remap from="odometry_world"        to="odometry"/>
+        <param name="base_link_frame"       value="$(arg robot_frame_id)"/>
+    </node> -->
+    <node pkg="carplanner_msgs" type="tf2odom" name="tf2odom">
+        <param name="parent_frame"     value="$(arg fixed_frame_id)"/>
+        <param name="child_frame"      value="$(arg robot_frame_id)"/>
+        <param name="odom_topic"       value="odometry"/>
+        <!-- <param name="rate"             value="20"/> -->
+    </node>
+
+    <node pkg="msfm3d" type="costmap_generator" name="costmap_generator">
+        <param name="fixedFrame" type="string" value="$(arg fixed_frame_id)"/>
+        <!-- <param name="fixedFrame" type="string" value="world"/> -->
+        <param name="rate" value="5.0"/>
+        <param name="resolution" value="$(arg resolution)"/>
+        <param name="untraversableDistance" value="0.05"/>
+        <param name="octomapFreeDistance" value="0.02"/>
+        <remap from="esdf" to="edt"/>
+        <!-- <remap from="esdf" to="voxblox_node/esdf_pointcloud"/> -->
+        <remap from="octomap_binary" to="$(arg octomap_topic)"/>
+        <!-- <remap from="traversability_map" to="rough_octomap_full"/> -->
+    </node>
+    <node pkg="nodelet" type="nodelet" name="pcl_manager_costmap" args="manager" />
+    <!-- Run a passthrough filter to clean NaNs -->
+    <!-- <node pkg="nodelet" type="nodelet" name="passthrough_costmap" args="load pcl/PassThrough pcl_manager_costmap" output="screen">
+        <remap from="~input" to="cost_map" />
+        <remap from="~output" to="cost_map_filtered" />
+        <rosparam>
+        filter_field_name: intensity
+        filter_limit_min: 0.051
+        filter_limit_max: 100.0
+        filter_limit_negative: False
+        </rosparam>
+    </node> -->
+    <node pkg="nodelet" type="nodelet" name="passthrough_reach" args="load pcl/PassThrough pcl_manager_costmap">
+        <remap from="~input" to="reach_grid" />
+        <remap from="~output" to="reach_grid_filtered" />
+        <rosparam>
+        filter_field_name: z
+        filter_limit_min: 0.0
+        filter_limit_max: 0.2
+        filter_limit_negative: False
+        </rosparam>
+    </node>
+    <node pkg="ground_finder" type="traversability_mapping" name="traversability_mapping" unless="$(arg enable_traversability)">
+        <remap from="octomap_binary" to="$(arg octomap_topic)"/>
+        <remap from="edt" to="edt"/>
+        <!-- Params -->
+        <param name="update_rate" value="2.0"/>
+        <param name="min_cluster_size" value="50"/>
+            <!-- 0.95 filters out stairs in the EC Basement -->
+            <!-- 0.92 worked better in earlier sim testing -->
+        <!-- <param name="normal_z_threshold" value="0.92"/> -->
+        <param name="normal_z_threshold" value="0.86"/>
+        <param name="normal_curvature_threshold" value="2.0"/>
+        <param name="sensor_range" value="$(arg range)"/>
+        <param name="truncation_distance" value = "3.0"/>
+        <param name="inflate_distance" value = "0.2"/>
+        <param name="full_map_ticks" value = "60"/>
+        <!-- <param name="bbx_xy" value="8.0"/> -->
+        <!-- <param name="bbx_z" value ="3.0"/> -->
+        <param name="fixed_frame_id"              value="$(arg fixed_frame_id)"/>
+        <param name="robot_frame_id"              value="$(arg robot_frame_id)"/>
+        <!-- <param name="use_tf"                      value=""/> -->
+        <!-- <param name="filter_holes"                value=""/>      -->
+    </node>
+    <node pkg="ground_finder" type="traversability_to_edt" name="traversability_mapping" if="$(arg enable_traversability)" output="screen">
+        <!-- <remap from="octomap_binary" to="$(arg octomap_topic)"/>
+        <remap from="rough_octomap_full" to="$(arg rough_octomap_topic)"/> -->
+        <remap from="octomap" to="$(arg rough_octomap_topic)"/>
+        <remap from="edt" to="edt"/>
+        <!-- Params -->
+        <param name="update_rate" value="2.0"/>
+        <param name="min_cluster_size" value="50"/>
+            <!-- 0.95 filters out stairs in the EC Basement -->
+            <!-- 0.92 worked better in earlier sim testing -->
+        <!-- <param name="normal_z_threshold" value="0.92"/> -->
+        <param name="normal_z_threshold" value="0.86"/>
+        <param name="normal_curvature_threshold" value="2.0"/>
+        <param name="sensor_range" value="$(arg range)"/>
+        <param name="truncation_distance" value = "3.0"/>
+        <param name="inflate_distance" value = "0.2"/>
+        <param name="full_map_ticks" value = "60"/>
+        <!-- <param name="bbx_xy" value="8.0"/> -->
+        <!-- <param name="bbx_z" value ="3.0"/> -->
+        <param name="fixed_frame_id"              value="$(arg fixed_frame_id)"/>
+        <param name="robot_frame_id"              value="$(arg robot_frame_id)"/>
+        <!-- <param name="use_tf"                      value=""/> -->
+        <!-- <param name="filter_holes"                value=""/>      -->
+    </node>
+    <node pkg="msfm3d" type="msfm3d" name="global_planning">
+        <!-- Inputs (Subscribed Topic Names) -->
+        <remap from="octomap_binary" to="octomap_binary_crap"/>
+        <remap from="odometry" to="odometry"/>
+        <!-- Outputs (Published Topic Names) -->
+        <!-- <remap from="nearest_frontier" to="nearest_frontier_2"/> -->
+        <!-- <remap from="frontier_goal_pose" to="frontier_goal_pose_2"/> -->
+        <!-- <remap from="planned_path" to="planned_path_2"/> -->
+        <!-- <remap from="frontier" to="frontier_2"/> -->
+        <!-- <remap from="goalFrustum" to="goalFrustum_2"/> -->
+        <!-- <remap from="inflated_octomap" to="inflated_octomap"/> -->
+        <remap from="artifact_list" to="report_artifact"/>
+        <!-- <remap from="voxblox_node/tsdf_pointcloud" to="voxblox_node/esdf_pointcloud"/> -->
+        <remap from="voxblox_node/tsdf_pointcloud" to="cost_map"/>
+        <!-- <remap from="voxblox_node/tsdf_pointcloud" to="edt"/> -->
+        <remap from="custom_goal_point" to="guiGoalPoint"/>
+        <!-- Parameters -->
+        <!-- Map Resolution -->
+        <param name="resolution" value="$(arg resolution)"/>
+        <!-- The planner assumes the vehicle is an air vehicle.  If the vehicle is constrained to the ground (wheeled vehicle), set to true. -->
+        <param name="isGroundVehicle" value="true"/>
+        <!-- If the vehicle is an air vehicle, the following params should be set -->
+        <param name="minGoalDist" value="1.5" />
+        <param name="goalArrivalDist" value="1.5" />
+        <!-- Whether or not you want to use an Occupancy Grid or an ESDF map type -->
+        <param name="useOctomap" value="false"/>
+        <!-- Name of the map world frame -->
+        <param name="frame_id" type="string" value="$(arg fixed_frame_id)"/>
+        <!-- <param name="frame_id" type="string" value="world"/> -->
+        <!-- Vehicle speed in m/s and turnRate in deg/s -->
+        <param name="speed" value="1.0"/>
+        <param name="turnPenalty" value="1.0"/>
+        <param name="minViewCloudSize" value="5"/>
+        <!-- Frontier Clustering parameters (in voxels) -->
+        <param name="min_cluster_size" value="80" />
+        <param name="normalThresholdZ" value="0.4" />
+        <!-- Number of ticks before replanning -->
+        <param name="replan_ticks" value="5" />
+        <!-- Number of ticks before sampling new goal poses -->
+        <param name="goal_ticks" value="25" />
+        <!-- Replan trigger method -->
+        <param name="replanTrigger" type="string" value="frontier"/>
+        <!-- <param name="replanTrigger" type="string" value="distance"/> -->
+        <!-- Location of the environment entrance. (Default is [0.0, 0.0, 0.0])  The robot will not explore area within entrance_radius meters of this point -->
+        <param name="entranceShape" value="Box"/>
+        <!-- If entrance is sphere -->
+        <param name="entrance_x" value="0.0" />
+        <param name="entrance_y" value="0.0" />
+        <param name="entrance_z" value="0.0" />
+        <param name="entrance_radius" value="0.0" />
+        <!-- If entrance is box -->
+        <param name="entranceBox_xmin" value= "-20.0"/>
+        <param name="entranceBox_xmax" value= "0.0"/>
+        <param name="entranceBox_ymin" value= "-10.0"/>
+        <param name="entranceBox_ymax" value= "10.0"/>
+        <param name="entranceBox_zmin" value= "-2.0"/>
+        <param name="entranceBox_zmax" value= "5.0"/>
+        <!-- Camera viewing parameters, angles in degrees, ranges in meters -->
+        <param name="cameraVerticalFoV" value="10.0"/>
+        <param name="cameraHorizontalFoV" value="120.0"/>
+        <param name="cameraMaxRange" value="2.2"/>
+        <param name="cameraMinRange" value="1.2"/>
+        <param name="robot2camera_roll" value="0.0"/>
+        <param name="robot2camera_pitch" value="0.0"/>
+        <param name="robot2camera_yaw" value="0.0"/>
+        <!-- roll, pitch, yaw for rotation from robot orientation to camera orientation (Default is identity rotation matrix) -->
+        <!-- <param name="robot2camera_q_w" value="1.0"/>
+        <param name="robot2camera_q_x" value="0.0"/>
+        <param name="robot2camera_q_y" value="0.0"/>
+        <param name="robot2camera_q_z" value="0.0"/> -->
+        <!-- Update Rate, default is 1.0 Hz -->
+        <param name="updateRate" value="1.0"/>
+        <!-- Inflated Obstacle width -->
+        <param name="inflateWidth" value="0.0"/>
+        <!-- Vehicle Fence Volume Limits -->
+        <!-- <param name="fenceOn" value="true"/>
+        <param name="fence_xmin" value="-1000.0"/>
+        <param name="fence_xmax" value="1000.0"/>
+        <param name="fence_ymin" value="-1000.0"/>
+        <param name="fence_ymax" value="1000.0"/>
+        <param name="fence_zmin" value="-50.0"/>
+        <param name="fence_zmax" value="3.0"/> -->
+        <!-- Vehicle Volume Extents -->
+        <param name="vehicleVolumeOn" value="true"/>
+        <param name="vehicleVolumeXmin" value="-0.6"/>
+        <param name="vehicleVolumeXmax" value="0.6"/>
+        <param name="vehicleVolumeYmin" value="-0.6"/>
+        <param name="vehicleVolumeYmax" value="0.6"/>
+        <param name="vehicleVolumeZmin" value="-0.2"/>
+        <param name="vehicleVolumeZmax" value="0.2"/>
+        <!-- Fix vehicle goal height (in meters) above map ground level for a quad/ground vehicle -->
+        <param name="fixGoalHeightAGL" value="false"/>
+        <param name="goalHeightAGL" value="0.2"/>
+        <!-- Fix the delta z in voxels from the vehicle current height that are considered frontiers -->
+        <param name="dzFrontierVoxelWidth" type="int" value="-1"/>
+        <!-- Multi-agent Parameters -->
+        <param name="goalViewSeparation" value = "2.5"/>
+        <!-- Cost Function -->
+        <param name="goalFunction" type="string" value="cost"/>
+        <!-- <param name="goalFunction" type="string" value="information"/> -->
+        <!-- Minimum obstacle proximity for goal poses (adds to inflated distance) -->
+        <param name="viewPoseObstacleDistance" value="0.4"/>
+    </node>
+
+</launch>

@@ -1,5 +1,5 @@
 <launch>
-    <param name="use_sim_time"          value="true"/>
+    <!-- <param name="use_sim_time"          value="true"/> -->
 
     <arg name="enable_rosbag"           default="false"/>
     <!-- EDGAR 2021-02-23, ROUGH PATCH 1 -->

@@ -9,6 +9,7 @@
     <arg name="enable_inner_crop"               default="true"/>
     <arg name="enable_outer_crop"               default="false"/>
     <arg name="enable_picoflexx_points"         default="true" />
+    <arg name="enable_planning"                 default="false"/>
 
     <arg name="fixed_frame_id"                  default="H01/map"/>
     <arg name="child_frame_id"                  default="$(arg vehicle_name)/base_link"/>
@@ -24,23 +25,31 @@
     <group ns="$(arg vehicle_name)">
         <node pkg="rviz" type="rviz" name="rviz" output="log" args="-d $(find curvy_terrain_mapper)/curvy_terrain_mapper_$(arg vehicle_name).rviz" if="$(arg enable_rviz)"/>
 
+        <include file="$(find curvy_terrain_mapper)/launch/planning.launch" if="$(arg enable_planning)">
+            <arg name="resolution"              value="$(arg octomap_resolution)"/>
+            <arg name="octomap_topic"           value="~octomap_binary"/>
+            <arg name="rough_octomap_topic"     value="~rough_octomap_full"/>
+            <arg name="child_frame_id"          value="$(arg child_frame_id)"/>
+            <arg name="range"                   value="$(arg range)"/>
+        </include>
+
         <include file="$(find octomap_server)/launch/octomap_mapping_rough.launch">
             <!-- <arg name="ns"             value="$(arg ns)"/> -->
-            <arg name="cloud_in"                value="$(arg input_cloud_topic)/cost_norm_cloud/cropped2"/>
-            <arg name="frame_id"                value="$(arg fixed_frame_id)"/>
-            <arg name="base_frame_id"           value="$(arg child_frame_id)"/>
-            <arg name="filter_speckles"         value="true"/>
-            <arg name="filter_ground"           value="false"/>
-            <arg name="sensor_model/max_range"  value="$(arg range)"/>
-            <arg name="trav_marker_density"     value="$(arg trav_marker_density)"/>
-            <arg name="trav_marker_lower_thresh"        value="$(arg trav_marker_lower_thresh)"/>
-            <arg name="trav_marker_upper_thresh"        value="$(arg trav_marker_upper_thresh)"/>
-            <arg name="resolution"              value="$(arg octomap_resolution)"/>
-            <arg name="sensor_model/hit"        value="0.8"/>
-            <arg name="sensor_model/miss"       value="0.45"/>
-            <arg name="sensor_model/min"        value="0.12"/>
-            <arg name="sensor_model/max"        value="0.97"/>
-            <arg name="compress_map"            value="true"/>
+            <arg name="cloud_in"                    value="$(arg input_cloud_topic)/cost_norm_cloud/cropped2"/>
+            <arg name="frame_id"                    value="$(arg fixed_frame_id)"/>
+            <arg name="base_frame_id"               value="$(arg child_frame_id)"/>
+            <arg name="filter_speckles"             value="true"/>
+            <arg name="filter_ground"               value="false"/>
+            <arg name="sensor_model/max_range"      value="$(arg range)"/>
+            <arg name="trav_marker_density"         value="$(arg trav_marker_density)"/>
+            <arg name="trav_marker_lower_thresh"    value="$(arg trav_marker_lower_thresh)"/>
+            <arg name="trav_marker_upper_thresh"    value="$(arg trav_marker_upper_thresh)"/>
+            <arg name="resolution"                  value="$(arg octomap_resolution)"/>
+            <arg name="sensor_model/hit"            value="0.8"/>
+            <arg name="sensor_model/miss"           value="0.45"/>
+            <arg name="sensor_model/min"            value="0.12"/>
+            <arg name="sensor_model/max"            value="0.97"/>
+            <arg name="compress_map"                value="true"/>
         </include>
 
         <group ns="horiz/os_cloud_node">
