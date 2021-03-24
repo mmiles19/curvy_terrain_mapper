@@ -28,7 +28,7 @@
     <arg name="preanalysis/dsMethod" default="false"/>
     <arg name="preanalysis/neMethod" default="0"/>
     <arg name="segmentationmode" default="0"/>
-    <arg name="regiongrowing/minClustSize" default="30"/>
+    <!-- <arg name="regiongrowing/minClustSize" default="30"/>
     <arg name="regiongrowing/noNeigh" default="24"/>
     <arg name="regiongrowing/smoothFlag" default="false"/>
     <arg name="regiongrowing/smoothThresh" default="50.0"/>
@@ -38,8 +38,7 @@
     <arg name="regiongrowing/curvThresh" default="0.1"/>
     <arg name="regiongrowing/updateFlag" default="true"/>
     <arg name="regiongrowing/pointUpdateFlag" default="true"/>
-    <arg name="regiongrowing/updateInterval" default="100"/>
-
+    <arg name="regiongrowing/updateInterval" default="100"/> -->
     <arg name="costmap/normal_gain" default="2.0"/>
     <arg name="costmap/curv_gain" default="10.0"/>
     <arg name="costmap/min_saturation_cost" default="0.0"/>
@@ -76,7 +75,7 @@
         <param name="~preanalysis/dsMethod" value="$(arg preanalysis/dsMethod)"/>
         <param name="~preanalysis/neMethod" value="$(arg preanalysis/neMethod)"/>
         <param name="~segmentationmode" value="$(arg segmentationmode)"/>
-        <param name="~regiongrowing/minClustSize" value="$(arg regiongrowing/minClustSize)"/>
+        <!-- <param name="~regiongrowing/minClustSize" value="$(arg regiongrowing/minClustSize)"/>
         <param name="~regiongrowing/noNeigh" value="$(arg regiongrowing/noNeigh)"/>
         <param name="~regiongrowing/smoothFlag" value="$(arg regiongrowing/smoothFlag)"/>
         <param name="~regiongrowing/smoothThresh" value="$(arg regiongrowing/smoothThresh)"/>
@@ -86,7 +85,7 @@
         <param name="~regiongrowing/curvThresh" value="$(arg regiongrowing/curvThresh)"/>
         <param name="~regiongrowing/updateFlag" value="$(arg regiongrowing/updateFlag)"/>
         <param name="~regiongrowing/pointUpdateFlag" value="$(arg regiongrowing/pointUpdateFlag)"/>
-        <param name="~regiongrowing/updateInterval" value="$(arg regiongrowing/updateInterval)"/>
+        <param name="~regiongrowing/updateInterval" value="$(arg regiongrowing/updateInterval)"/> -->
         <param name="~costmap/normal_gain" value="$(arg costmap/normal_gain)"/>
         <param name="~costmap/curv_gain" value="$(arg costmap/curv_gain)"/>
         <param name="~costmap/min_saturation_cost" value="$(arg costmap/min_saturation_cost)"/>

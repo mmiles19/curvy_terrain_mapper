@@ -216,8 +216,7 @@ void Preanalysis::downsample()
 			centerPoint.x=centP[0];
 			centerPoint.y=centP[1];
 			centerPoint.z=centP[2];
-            if (centerPoint.z<1.0)
-			    pc->push_back(centerPoint);
+		    pc->push_back(centerPoint);
 
 		}while(*++itL);
     }

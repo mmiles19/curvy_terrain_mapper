@@ -5,7 +5,7 @@
 
 #include <curvy_terrain_mapper/preanalysis.h>
 #include <curvy_terrain_mapper/regions.h>
-#include <curvy_terrain_mapper/regiongrowing.h>
+// #include <curvy_terrain_mapper/regiongrowing.h>
 #include <curvy_terrain_mapper/voxSAC.h>
 #include <curvy_terrain_mapper/splitmerge.h>
 
@@ -136,6 +136,49 @@ public:
     {
         float ratio = (max_final-min_final)/(max_initial-min_initial)*initial + (min_final*max_initial-max_final*min_initial)/(max_initial-min_initial);
         return ratio;
+    }
+
+    inline void cfgCb(curvy_terrain_mapper::CurvyTerrainMapperConfig &config, uint32_t level)
+    {
+        ROS_INFO("Reconfigure requested.");
+
+        // n.param("pub_viz", params_.pub_viz_, true);
+        params_.preanalysis.dsFlag = config.groups.preanalysis.dsFlag;
+        params_.preanalysis.dsResolution = config.groups.preanalysis.dsResolution;
+        params_.preanalysis.neNeighMethod = config.groups.preanalysis.neNeighMethod;
+        params_.preanalysis.neSearchNeighbours = config.groups.preanalysis.neSearchNeighbours;
+        params_.preanalysis.neSearchRadius = config.groups.preanalysis.neSearchRadius;
+        params_.preanalysis.gpFlag = config.groups.preanalysis.gpFlag;
+        params_.preanalysis.gpAngle = config.groups.preanalysis.gpAngle;
+        params_.preanalysis.pfActive = config.groups.preanalysis.pfActive;
+        params_.preanalysis.pfAngle = config.groups.preanalysis.pfAngle;
+        params_.preanalysis.fsActive = config.groups.preanalysis.fsActive;
+        params_.preanalysis.fsAngle = config.groups.preanalysis.fsAngle;
+        params_.preanalysis.fsRange = config.groups.preanalysis.fsRange;
+        params_.preanalysis.rob_x = config.groups.preanalysis.rob_x;
+        params_.preanalysis.rob_y = config.groups.preanalysis.rob_y;
+        params_.preanalysis.rob_z = config.groups.preanalysis.rob_z;
+        params_.preanalysis.robAngle = config.groups.preanalysis.robAngle;
+        params_.preanalysis.dsMethod = config.groups.preanalysis.dsMethod;
+        params_.preanalysis.neMethod = config.groups.preanalysis.neMethod;
+        params_.segmentationmode = config.segmentationmode;
+        // params_.regiongrowing.minClustSize = config.groups.region_growing.minClustSize;
+        // params_.regiongrowing.noNeigh = config.groups.region_growing.noNeigh;
+        // params_.regiongrowing.smoothFlag = config.groups.region_growing.smoothFlag;
+        // params_.regiongrowing.smoothThresh = config.groups.region_growing.smoothThresh;
+        // params_.regiongrowing.resFlag = config.groups.region_growing.resFlag;
+        // params_.regiongrowing.resThresh = config.groups.region_growing.resThresh;
+        // params_.regiongrowing.curvFlag = config.groups.region_growing.curvFlag;
+        // params_.regiongrowing.curvThresh = config.groups.region_growing.curvThresh;
+        // params_.regiongrowing.updateFlag = config.groups.region_growing.updateFlag;
+        // params_.regiongrowing.pointUpdateFlag = config.groups.region_growing.pointUpdateFlag;
+        // params_.regiongrowing.updateInterval = config.groups.region_growing.updateInterval;
+        params_.costmap.normal_gain = config.groups.costmap.normal_gain;
+        params_.costmap.curv_gain = config.groups.costmap.curv_gain;
+        params_.costmap.max_saturation_cost = config.groups.costmap.max_saturation_cost;
+        params_.costmap.min_saturation_cost = config.groups.costmap.min_saturation_cost;
+        params_.costmap.set_max_saturation_cost_to_max_cost = config.groups.costmap.set_max_saturation_cost_to_max_cost;
+        params_.costmap.set_min_saturation_cost_to_min_cost = config.groups.costmap.set_min_saturation_cost_to_min_cost;
     }
 
     inline void inputCB(const sensor_msgs::PointCloud2& input_msg)
@@ -500,50 +543,6 @@ public:
         ROS_INFO("Done publishing clouds");
 
         busy = false;
-    }
-
-
-    inline void cfgCb(curvy_terrain_mapper::CurvyTerrainMapperConfig &config, uint32_t level)
-    {
-        ROS_INFO("Reconfigure requested.");
-
-        // n.param("pub_viz", params_.pub_viz_, true);
-        params_.preanalysis.dsFlag = config.groups.preanalysis.dsFlag;
-        params_.preanalysis.dsResolution = config.groups.preanalysis.dsResolution;
-        params_.preanalysis.neNeighMethod = config.groups.preanalysis.neNeighMethod;
-        params_.preanalysis.neSearchNeighbours = config.groups.preanalysis.neSearchNeighbours;
-        params_.preanalysis.neSearchRadius = config.groups.preanalysis.neSearchRadius;
-        params_.preanalysis.gpFlag = config.groups.preanalysis.gpFlag;
-        params_.preanalysis.gpAngle = config.groups.preanalysis.gpAngle;
-        params_.preanalysis.pfActive = config.groups.preanalysis.pfActive;
-        params_.preanalysis.pfAngle = config.groups.preanalysis.pfAngle;
-        params_.preanalysis.fsActive = config.groups.preanalysis.fsActive;
-        params_.preanalysis.fsAngle = config.groups.preanalysis.fsAngle;
-        params_.preanalysis.fsRange = config.groups.preanalysis.fsRange;
-        params_.preanalysis.rob_x = config.groups.preanalysis.rob_x;
-        params_.preanalysis.rob_y = config.groups.preanalysis.rob_y;
-        params_.preanalysis.rob_z = config.groups.preanalysis.rob_z;
-        params_.preanalysis.robAngle = config.groups.preanalysis.robAngle;
-        params_.preanalysis.dsMethod = config.groups.preanalysis.dsMethod;
-        params_.preanalysis.neMethod = config.groups.preanalysis.neMethod;
-        params_.segmentationmode = config.segmentationmode;
-        params_.regiongrowing.minClustSize = config.groups.region_growing.minClustSize;
-        params_.regiongrowing.noNeigh = config.groups.region_growing.noNeigh;
-        params_.regiongrowing.smoothFlag = config.groups.region_growing.smoothFlag;
-        params_.regiongrowing.smoothThresh = config.groups.region_growing.smoothThresh;
-        params_.regiongrowing.resFlag = config.groups.region_growing.resFlag;
-        params_.regiongrowing.resThresh = config.groups.region_growing.resThresh;
-        params_.regiongrowing.curvFlag = config.groups.region_growing.curvFlag;
-        params_.regiongrowing.curvThresh = config.groups.region_growing.curvThresh;
-        params_.regiongrowing.updateFlag = config.groups.region_growing.updateFlag;
-        params_.regiongrowing.pointUpdateFlag = config.groups.region_growing.pointUpdateFlag;
-        params_.regiongrowing.updateInterval = config.groups.region_growing.updateInterval;
-        params_.costmap.normal_gain = config.groups.costmap.normal_gain;
-        params_.costmap.curv_gain = config.groups.costmap.curv_gain;
-        params_.costmap.max_saturation_cost = config.groups.costmap.max_saturation_cost;
-        params_.costmap.min_saturation_cost = config.groups.costmap.min_saturation_cost;
-        params_.costmap.set_max_saturation_cost_to_max_cost = config.groups.costmap.set_max_saturation_cost_to_max_cost;
-        params_.costmap.set_min_saturation_cost_to_min_cost = config.groups.costmap.set_min_saturation_cost_to_min_cost;
     }
 };
 
