@@ -14,6 +14,7 @@
   <!-- <arg name="world"               default="simple_cave_03"/> -->
   <!-- <arg name="world"               default="urban_practice_01"/> -->
   <arg name="agents"              default="X1,X2"/>
+
   <arg name="enable_localization" default="$(eval not groundtruth)"/>
   <arg name="enable_mapping"      default="1"/>
   <arg name="enable_multi_agent"  default="1"/>
@@ -27,7 +28,7 @@
   <arg name="mapping_range"       default="5.0"/>
   <arg name="planning_frame"      default="world"/>
 
-
+<!-- LAUNCH SIM -->
   <include file="$(find marble_common)/launch/sim/subt.launch">
     <arg name="models"        value="$(arg models)"/>
     <arg name="config"        value="$(arg config)"/>
@@ -37,6 +38,7 @@
     <arg name="world"         value="$(arg world)"/>
   </include>
 
+<!-- LAUNCH BASE STATION -->
   <include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch">
     <arg name="time"   value="15"/>
     <arg name="pkg"    value="marble_common"/>
@@ -52,6 +54,7 @@
       <arg name="enable_rviz"         value="false"/>
   </include> -->
 
+  <!-- LAUNCH X1 -->
   <include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch">
     <arg name="time"   value="20"/>
     <arg name="pkg"    value="marble_common"/>
@@ -79,6 +82,7 @@
     <arg name="node_name" value="X1_timed_roslaunch"/>
   </include>
 
+<!-- LAUNCH X2 -->
   <include file="$(find timed_roslaunch)/launch/timed_roslaunch.launch" if="$(eval config=='team')">
     <arg name="time"   value="25"/>
     <arg name="pkg"    value="marble_common"/>
