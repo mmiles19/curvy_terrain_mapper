@@ -5,7 +5,7 @@
 
 #include <curvy_terrain_mapper/preanalysis.h>
 #include <curvy_terrain_mapper/regions.h>
-#include <curvy_terrain_mapper/regiongrowing.h>
+// #include <curvy_terrain_mapper/regiongrowing.h>
 #include <curvy_terrain_mapper/voxSAC.h>
 #include <curvy_terrain_mapper/splitmerge.h>
 
@@ -442,17 +442,17 @@ void cfgCb(curvy_terrain_mapper::CurvyTerrainMapperConfig &config, uint32_t leve
     params_.preanalysis.dsMethod = config.groups.preanalysis.dsMethod;
     params_.preanalysis.neMethod = config.groups.preanalysis.neMethod;
     params_.segmentationmode = config.segmentationmode;
-    params_.regiongrowing.minClustSize = config.groups.region_growing.minClustSize;
-    params_.regiongrowing.noNeigh = config.groups.region_growing.noNeigh;
-    params_.regiongrowing.smoothFlag = config.groups.region_growing.smoothFlag;
-    params_.regiongrowing.smoothThresh = config.groups.region_growing.smoothThresh;
-    params_.regiongrowing.resFlag = config.groups.region_growing.resFlag;
-    params_.regiongrowing.resThresh = config.groups.region_growing.resThresh;
-    params_.regiongrowing.curvFlag = config.groups.region_growing.curvFlag;
-    params_.regiongrowing.curvThresh = config.groups.region_growing.curvThresh;
-    params_.regiongrowing.updateFlag = config.groups.region_growing.updateFlag;
-    params_.regiongrowing.pointUpdateFlag = config.groups.region_growing.pointUpdateFlag;
-    params_.regiongrowing.updateInterval = config.groups.region_growing.updateInterval;
+    // params_.regiongrowing.minClustSize = config.groups.region_growing.minClustSize;
+    // params_.regiongrowing.noNeigh = config.groups.region_growing.noNeigh;
+    // params_.regiongrowing.smoothFlag = config.groups.region_growing.smoothFlag;
+    // params_.regiongrowing.smoothThresh = config.groups.region_growing.smoothThresh;
+    // params_.regiongrowing.resFlag = config.groups.region_growing.resFlag;
+    // params_.regiongrowing.resThresh = config.groups.region_growing.resThresh;
+    // params_.regiongrowing.curvFlag = config.groups.region_growing.curvFlag;
+    // params_.regiongrowing.curvThresh = config.groups.region_growing.curvThresh;
+    // params_.regiongrowing.updateFlag = config.groups.region_growing.updateFlag;
+    // params_.regiongrowing.pointUpdateFlag = config.groups.region_growing.pointUpdateFlag;
+    // params_.regiongrowing.updateInterval = config.groups.region_growing.updateInterval;
     params_.costmap.normal_gain = config.groups.costmap.normal_gain;
     params_.costmap.curv_gain = config.groups.costmap.curv_gain;
     params_.costmap.max_saturation_cost = config.groups.costmap.max_saturation_cost;
@@ -490,17 +490,17 @@ int main (int argc, char *argv[])
     n.param("preanalysis/dsMethod", params_.preanalysis.dsMethod, false);
     n.param("preanalysis/neMethod", params_.preanalysis.neMethod, 0);
     n.param("segmentationmode", params_.segmentationmode, 0);
-    n.param("regiongrowing/minClustSize", params_.regiongrowing.minClustSize, 30);
-    n.param("regiongrowing/noNeigh", params_.regiongrowing.noNeigh, 24);
-    n.param("regiongrowing/smoothFlag", params_.regiongrowing.smoothFlag, false);
-    n.param("regiongrowing/smoothThresh", params_.regiongrowing.smoothThresh, 50.0);
-    n.param("regiongrowing/resFlag", params_.regiongrowing.resFlag, true);
-    n.param("regiongrowing/resThresh", params_.regiongrowing.resThresh, 0.08);
-    n.param("regiongrowing/curvFlag", params_.regiongrowing.curvFlag, false);
-    n.param("regiongrowing/curvThresh", params_.regiongrowing.curvThresh, 0.1);
-    n.param("regiongrowing/updateFlag", params_.regiongrowing.updateFlag, true);
-    n.param("regiongrowing/pointUpdateFlag", params_.regiongrowing.pointUpdateFlag, true);
-    n.param("regiongrowing/updateInterval", params_.regiongrowing.updateInterval, 100);
+    // n.param("regiongrowing/minClustSize", params_.regiongrowing.minClustSize, 30);
+    // n.param("regiongrowing/noNeigh", params_.regiongrowing.noNeigh, 24);
+    // n.param("regiongrowing/smoothFlag", params_.regiongrowing.smoothFlag, false);
+    // n.param("regiongrowing/smoothThresh", params_.regiongrowing.smoothThresh, 50.0);
+    // n.param("regiongrowing/resFlag", params_.regiongrowing.resFlag, true);
+    // n.param("regiongrowing/resThresh", params_.regiongrowing.resThresh, 0.08);
+    // n.param("regiongrowing/curvFlag", params_.regiongrowing.curvFlag, false);
+    // n.param("regiongrowing/curvThresh", params_.regiongrowing.curvThresh, 0.1);
+    // n.param("regiongrowing/updateFlag", params_.regiongrowing.updateFlag, true);
+    // n.param("regiongrowing/pointUpdateFlag", params_.regiongrowing.pointUpdateFlag, true);
+    // n.param("regiongrowing/updateInterval", params_.regiongrowing.updateInterval, 100);
     n.param("costmap/normal_gain", params_.costmap.normal_gain, 4.0);
     n.param("costmap/curv_gain", params_.costmap.curv_gain, 30.0);
     n.param("costmap/max_saturation_cost", params_.costmap.max_saturation_cost, 1.0);
