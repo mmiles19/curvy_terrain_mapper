@@ -9,11 +9,11 @@
     <arg name="vehicle_name"            default="H01"/>
     <arg name="enable_rviz"             default="false"/>
     <arg name="enable_debug"            default="false"/>
-    <!-- <arg name="enable_ctm"              default="true"/> -->
-    <arg name="enable_octomap"          default="true"/>
-    <arg name="enable_marble_mapping"   default="false"/>
-    <arg name="enable_inner_crop"       default="true"/>
-    <arg name="enable_outer_crop"       default="false"/>
+    <arg name="enable_picoflexx_points"         default="true" />
+    <arg name="enable_voxfilter"                default="false" />
+    <arg name="enable_inner_crop"               default="true"/>
+    <arg name="enable_outer_crop"               default="false"/>
+    <arg name="enable_planning"                 default="true" />
 
     <node pkg="rosbag" type="play" name="bag_player" output="screen" args="$(arg rosbag_args)" launch-prefix="bash -c 'sleep 10; $0 $@'" if="$(arg enable_rosbag)"/>
 
@@ -21,11 +21,11 @@
         <arg name="vehicle_name"          value="$(arg vehicle_name)"/>
         <arg name="enable_rviz"           value="$(arg enable_rviz)"/>
         <arg name="enable_debug"          value="$(arg enable_debug)"/>
-        <!-- <arg name="enable_ctm"            value="$(arg enable_ctm)"/> -->
-        <arg name="enable_octomap"        value="$(arg enable_octomap)"/>
-        <arg name="enable_marble_mapping" value="$(arg enable_marble_mapping)"/>
-        <arg name="enable_inner_crop"     value="$(arg enable_inner_crop)"/>
-        <arg name="enable_outer_crop"     value="$(arg enable_outer_crop)"/>
+        <arg name="enable_picoflexx_points"  value="$(arg enable_picoflexx_points)" />
+        <arg name="enable_voxfilter"         value="$(arg enable_voxfilter)" />
+        <arg name="enable_inner_crop"        value="$(arg enable_inner_crop)"/>
+        <arg name="enable_outer_crop"        value="$(arg enable_outer_crop)"/>
+        <arg name="enable_planning"          value="$(arg enable_planning)"/>
     </include>
 
     <param name="robot_description" command="$(find xacro)/xacro '$(find marble_common)/urdf/marble_husky_cave_liosam.urdf.xacro' use_nominal_extrinsics:=true" />
