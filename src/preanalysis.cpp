@@ -52,11 +52,11 @@ Preanalysis::Preanalysis()
 
 
 void Preanalysis::run(
-    PointCloudT::Ptr& input, 
-    NormalCloud::Ptr& normal, 
-    PointCloudC& colMap, 
-    PointCloudT::Ptr& floorPoints, 
-    NormalCloud::Ptr& floorNormals, 
+    PointCloudT::Ptr& input,
+    NormalCloud::Ptr& normal,
+    PointCloudC& colMap,
+    PointCloudT::Ptr& floorPoints,
+    NormalCloud::Ptr& floorNormals,
     Eigen::Matrix4d& transformCloud
     )
 {
@@ -279,7 +279,7 @@ void Preanalysis::normalEstimation()
 
 //	std::vector<int>::pointer floorPtr;
 //	floorPtr = &floorPoints;
-	ne.getFloorIndices(*flIndicesPtr); 
+	ne.getFloorIndices(*flIndicesPtr);
 	ne.getGhostIndices(*gpIndicesPtr);
 	ne.getNormalIndices(*npIndicesPtr);
 

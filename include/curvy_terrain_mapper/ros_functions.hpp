@@ -178,7 +178,7 @@ inline void pubCurvature(ros::Publisher* pub, PointCloudT tcloud, NormalCloud nc
         // std::cout << std::to_string(nm.curvature)+" ";
         float curve_sat = 1.f;
         float curve_gain = 1/0.05*curve_sat;
-        RGBColor color = getRGBColor(std::min(curve_sat,std::max(0.f,(float)fabs(nm.curvature*curve_gain)))); 
+        RGBColor color = getRGBColor(std::min(curve_sat,std::max(0.f,(float)fabs(nm.curvature*curve_gain))));
         rgb_msg.r = color.r;
         rgb_msg.g = color.g;
         rgb_msg.b = color.b;
@@ -198,13 +198,13 @@ inline void pubRegions(ros::Publisher* pub, regions segments, std::string fixed_
     cloud_msg.header.stamp = stamp;
     cloud_msg.type = cloud_msg.POINTS;
     cloud_msg.action = cloud_msg.ADD;
-    cloud_msg.scale.x = 0.005;
-    cloud_msg.scale.y = 0.005;
-    cloud_msg.scale.z = 0.005;
+    cloud_msg.scale.x = 0.05;
+    cloud_msg.scale.y = 0.05;
+    cloud_msg.scale.z = 0.05;
     cloud_msg.lifetime = ros::Duration(0.0);
     for(uint j=0; j<segments.size(); j++)
     {
-        RGBColor color = getRGBColor((float)(j)/(float)(segments.size())); 
+        RGBColor color = getRGBColor((float)(j)/(float)(segments.size()));
 
         PointCloudT cloud = segments.at(j).segmentCloud;
         for(uint i=0; i<cloud.size(); i++)
@@ -229,7 +229,7 @@ inline void pubRegions(ros::Publisher* pub, regions segments, std::string fixed_
 }
 
 // inline void getTransformFromTree(std::string parent_frame_id, std::string child_frame_id, Eigen::Transformd* tform)
-inline void getTransformFromTree(tf::TransformListener& listener, std::string parent_frame_id, std::string child_frame_id, Eigen::Matrix4d* tform_mat, ros::Time stamp=ros::Time(0))
+inline bool getTransformFromTree(tf::TransformListener& listener, std::string parent_frame_id, std::string child_frame_id, Eigen::Matrix4d* tform_mat, ros::Time stamp=ros::Time(0))
 {
     // ROS_INFO("Transforming cloud from %s to %s", child_frame_id.c_str(), parent_frame_id.c_str());
     // tf::TransformListener listener;
@@ -242,11 +242,13 @@ inline void getTransformFromTree(tf::TransformListener& listener, std::string pa
     catch (tf::TransformException ex)
     {
         ROS_ERROR("%s",ex.what());
+        return false;
     }
 
     Eigen::Affine3d tform;
     tf::transformTFToEigen(tf::Transform(tform_msg),tform);
     (*tform_mat) = tform.matrix();
+    return true;
 }
 
 
@@ -273,16 +275,17 @@ struct CurvyTerrainMapperParams{
     } preanalysis;
     int segmentationmode; // 0 = Region Growing (recommended), 1 = Voxel SAC, 2 = Split & Merge
     struct RegionGrowingParams{
-        int minClustSize; // Minimum cluster size 
+        bool enable; // Enable region growing
+        int minClustSize; // Minimum cluster size
         int noNeigh; // Number of neighbors
-        bool smoothFlag; // Smoothness flag (true: compare to seed point false: compare to neighboring point) 
-        double smoothThresh;  // Smoothness threshold 
-        bool resFlag; // Residual flag (true: compare to seed point false: compare to neighboring point) 
-        double resThresh;  // Residual distance 
-        bool curvFlag; // Curvature flag 
+        bool smoothFlag; // Smoothness flag (true: compare to seed point false: compare to neighboring point)
+        double smoothThresh;  // Smoothness threshold
+        bool resFlag; // Residual flag (true: compare to seed point false: compare to neighboring point)
+        double resThresh;  // Residual distance
+        bool curvFlag; // Curvature flag
         double curvThresh; // Curvature threshold (max)
-        bool updateFlag; // Update seed point during growing 
-        bool pointUpdateFlag; //  Update pointwise 
+        bool updateFlag; // Update seed point during growing
+        bool pointUpdateFlag; //  Update pointwise
         int updateInterval; // If not pointwise, update every
     } regiongrowing;
     struct CostmapParams{

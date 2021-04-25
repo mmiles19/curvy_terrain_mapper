@@ -5,7 +5,7 @@
 
 #include <curvy_terrain_mapper/preanalysis.h>
 #include <curvy_terrain_mapper/regions.h>
-// #include <curvy_terrain_mapper/regiongrowing.h>
+#include <curvy_terrain_mapper/regiongrowing.h>
 #include <curvy_terrain_mapper/voxSAC.h>
 #include <curvy_terrain_mapper/splitmerge.h>
 
@@ -59,7 +59,7 @@ private:
     // ros::Publisher curvature_pub_;
     // ros::Publisher costmap_pub_;
     // ros::Publisher costmap3d_pub_;
-    // ros::Publisher seg_regions_pub_;
+    ros::Publisher seg_regions_pub_;
     ros::Publisher costcloud_pub_;
     ros::Publisher costnormcloud_pub_;
     tf::TransformListener listener;
@@ -101,6 +101,7 @@ public:
         m_private_nh.param("preanalysis/dsMethod", params_.preanalysis.dsMethod, false);
         m_private_nh.param("preanalysis/neMethod", params_.preanalysis.neMethod, 0);
         m_private_nh.param("segmentationmode", params_.segmentationmode, 0);
+        m_private_nh.param("regiongrowing/enable", params_.regiongrowing.enable, false);
         m_private_nh.param("regiongrowing/minClustSize", params_.regiongrowing.minClustSize, 30);
         m_private_nh.param("regiongrowing/noNeigh", params_.regiongrowing.noNeigh, 24);
         m_private_nh.param("regiongrowing/smoothFlag", params_.regiongrowing.smoothFlag, false);
@@ -127,7 +128,7 @@ public:
         // curvature_pub_ = n.advertise<visualization_msgs::Marker>("curvature",1);
         // costmap_pub_ = n.advertise<visualization_msgs::Marker>("costmap",1);
         // costmap3d_pub_ = n.advertise<visualization_msgs::Marker>("costmap3d",1);
-        // seg_regions_pub_ = n.advertise<visualization_msgs::Marker>("segmented_regions", 1);
+        seg_regions_pub_ = m_private_nh.advertise<visualization_msgs::Marker>("segmented_regions", 1);
         costcloud_pub_ = m_private_nh.advertise<sensor_msgs::PointCloud2>("cost_cloud",1);
         costnormcloud_pub_ = m_private_nh.advertise<sensor_msgs::PointCloud2>("cost_norm_cloud",1);
     }
@@ -162,17 +163,18 @@ public:
         params_.preanalysis.dsMethod = config.groups.preanalysis.dsMethod;
         params_.preanalysis.neMethod = config.groups.preanalysis.neMethod;
         params_.segmentationmode = config.segmentationmode;
-        // params_.regiongrowing.minClustSize = config.groups.region_growing.minClustSize;
-        // params_.regiongrowing.noNeigh = config.groups.region_growing.noNeigh;
-        // params_.regiongrowing.smoothFlag = config.groups.region_growing.smoothFlag;
-        // params_.regiongrowing.smoothThresh = config.groups.region_growing.smoothThresh;
-        // params_.regiongrowing.resFlag = config.groups.region_growing.resFlag;
-        // params_.regiongrowing.resThresh = config.groups.region_growing.resThresh;
-        // params_.regiongrowing.curvFlag = config.groups.region_growing.curvFlag;
-        // params_.regiongrowing.curvThresh = config.groups.region_growing.curvThresh;
-        // params_.regiongrowing.updateFlag = config.groups.region_growing.updateFlag;
-        // params_.regiongrowing.pointUpdateFlag = config.groups.region_growing.pointUpdateFlag;
-        // params_.regiongrowing.updateInterval = config.groups.region_growing.updateInterval;
+        params_.regiongrowing.enable = config.groups.region_growing.enable;
+        params_.regiongrowing.minClustSize = config.groups.region_growing.minClustSize;
+        params_.regiongrowing.noNeigh = config.groups.region_growing.noNeigh;
+        params_.regiongrowing.smoothFlag = config.groups.region_growing.smoothFlag;
+        params_.regiongrowing.smoothThresh = config.groups.region_growing.smoothThresh;
+        params_.regiongrowing.resFlag = config.groups.region_growing.resFlag;
+        params_.regiongrowing.resThresh = config.groups.region_growing.resThresh;
+        params_.regiongrowing.curvFlag = config.groups.region_growing.curvFlag;
+        params_.regiongrowing.curvThresh = config.groups.region_growing.curvThresh;
+        params_.regiongrowing.updateFlag = config.groups.region_growing.updateFlag;
+        params_.regiongrowing.pointUpdateFlag = config.groups.region_growing.pointUpdateFlag;
+        params_.regiongrowing.updateInterval = config.groups.region_growing.updateInterval;
         params_.costmap.normal_gain = config.groups.costmap.normal_gain;
         params_.costmap.curv_gain = config.groups.costmap.curv_gain;
         params_.costmap.max_saturation_cost = config.groups.costmap.max_saturation_cost;
@@ -230,7 +232,13 @@ public:
 
         Eigen::Matrix4d T_fixed_input_mat = Eigen::Matrix4d::Identity();
         if (input_msg.header.frame_id != params_.fixed_frame_id)
-            getTransformFromTree(listener, params_.fixed_frame_id, input_msg.header.frame_id, &T_fixed_input_mat, stamp_);
+        {
+            if (!getTransformFromTree(listener, params_.fixed_frame_id, input_msg.header.frame_id, &T_fixed_input_mat, stamp_))
+            {
+                busy = false;
+                return;
+            }
+        }
         // Eigen::Matrix4d invTransformCloud = transformCloud.inverse();
 
         // transform mainCloud (default identity),
@@ -247,70 +255,83 @@ public:
         // pubNormalCloud(&normal_cloud_pub_, *mainCloud, *mainNormals, params_.fixed_frame_id, stamp_);
         // pubCurvature(&curvature_pub_, *mainCloud, *mainNormals, params_.fixed_frame_id, stamp_);
 
+        PointCloudT::Ptr currentCloud = mainCloud;
+        NormalCloud::Ptr currentNormals = mainNormals;
+
     // Starting segmentation //
 
-        // ROS_INFO("Starting segmentation");
-        // double segS = pcl::getTime();
-        // regions segRegions;
-        // int segMode = params_.segmentationmode;
-        // PointCloudT::Ptr segCloud = mainCloud;
-        // NormalCloud::Ptr segNormals = mainNormals;
-        // // PointCloudT::Ptr segCloud = floorCloud;
-        // // NormalCloud::Ptr segNormals = floorNormals;
-        // switch (segMode)
-        // {
-        //     case 0:
-        //     {
-        //         ROS_INFO("Using Region Growing algorithm");
-        //         RegionGrowing reGrow;
-        //         reGrow.loadConfig(params_.regiongrowing);
-        //         reGrow.setInputCloud(segCloud);
-        //         reGrow.setNormalCloud(segNormals);
-        //         // extract and init segRegions with smooth regions
-        //         reGrow.run(segRegions);
-        //         break;
-        //     }
-        //     // case 1:
-        //     // {
-        //     //     ROS_INFO("Using Voxel SAC algorithm");
-        //     //     voxSAC voxelSAC;
-        //     //     voxelSAC.setInputCloud(segCloud);
-        //     //     voxelSAC.setNormalCloud(segNormals);
-        //     //     voxelSAC.run(segRegions);
-        //     //     break;
-        //     // }
-        //     // case 2:
-        //     // {
-        //     //     ROS_INFO("Using Split & Merge algorithm");
-        //     //     splitMerge sam;
-        //     //     sam.setInputCloud(segCloud);
-        //     //     sam.setNormalCloud(segNormals);
-        //     //     sam.splitProcess();
-        //     //     sam.mergeProcess(segRegions);
-        //     //     break;
-        //     // }
-        // }
-        // double segE = pcl::getTime();
-        // ROS_INFO("Segmentation found %d regions",segRegions.size());
-        // ROS_INFO("Segmentation took: %f",segE-segS);
+        if (params_.regiongrowing.enable)
+        {
+          ROS_INFO("Starting segmentation");
+          double segS = pcl::getTime();
+          regions segRegions;
+          int segMode = params_.segmentationmode;
+          PointCloudT::Ptr segCloud = mainCloud;
+          NormalCloud::Ptr segNormals = mainNormals;
+          // PointCloudT::Ptr segCloud = floorCloud;
+          // NormalCloud::Ptr segNormals = floorNormals;
+          switch (segMode)
+          {
+              case 0:
+              {
+                  ROS_INFO("Using Region Growing algorithm");
+                  RegionGrowing reGrow;
+                  reGrow.loadConfig(params_.regiongrowing);
+                  reGrow.setInputCloud(segCloud);
+                  reGrow.setNormalCloud(segNormals);
+                  // extract and init segRegions with smooth regions
+                  reGrow.run(segRegions);
+                  break;
+              }
+              // case 1:
+              // {
+              //     ROS_INFO("Using Voxel SAC algorithm");
+              //     voxSAC voxelSAC;
+              //     voxelSAC.setInputCloud(segCloud);
+              //     voxelSAC.setNormalCloud(segNormals);
+              //     voxelSAC.run(segRegions);
+              //     break;
+              // }
+              // case 2:
+              // {
+              //     ROS_INFO("Using Split & Merge algorithm");
+              //     splitMerge sam;
+              //     sam.setInputCloud(segCloud);
+              //     sam.setNormalCloud(segNormals);
+              //     sam.splitProcess();
+              //     sam.mergeProcess(segRegions);
+              //     break;
+              // }
+              default:
+              {
+                ROS_WARN("Unsupported segmentation mode.");
+              }
+          }
+          double segE = pcl::getTime();
+          ROS_INFO("Segmentation found %d regions",segRegions.size());
+          ROS_INFO("Segmentation took: %f",segE-segS);
 
-        // pubRegions(&seg_regions_pub_,segRegions, params_.fixed_frame_id, stamp_);
+          pubRegions(&seg_regions_pub_,segRegions, params_.fixed_frame_id, stamp_);
 
-        // if (segRegions.size()==0)
-        // {
-        //     busy = false;
-        //     return;
-        // }
+          if (segRegions.size()==0)
+          {
+              busy = false;
+              return;
+          }
 
-        // segmentPatch largestPatch;
-        // for (uint i=0; i<segRegions.size(); i++)
-        // {
-        //     if (segRegions.at(i).segmentCloud.size() > largestPatch.segmentCloud.size())
-        //     {
-        //         largestPatch = segRegions.at(i);
-        //     }
-        // }
-        // ROS_INFO("Largest patch has %d points",largestPatch.segmentCloud.size());
+          segmentPatch largestPatch;
+          for (uint i=0; i<segRegions.size(); i++)
+          {
+              if (segRegions.at(i).segmentCloud.size() > largestPatch.segmentCloud.size())
+              {
+                  largestPatch = segRegions.at(i);
+              }
+          }
+          ROS_INFO("Largest patch has %d points",largestPatch.segmentCloud.size());
+
+          currentCloud.reset(new PointCloudT(largestPatch.segmentCloud));
+          currentNormals.reset(new NormalCloud(largestPatch.normalCloud));
+        }
 
         // init costmap
         ROS_INFO("Starting costmap calculation");
@@ -355,10 +376,10 @@ public:
 
         PointCloudIN costCloud;
         {
-            for(uint i=0; i<mainCloud->size(); i++)
+            for(uint i=0; i<currentCloud->size(); i++)
             {
-                PointT pt = mainCloud->points[i];
-                Normal nm = mainNormals->points[i];
+                PointT pt = currentCloud->points[i];
+                Normal nm = currentNormals->points[i];
 
                 Eigen::Vector3f nmVec(nm.normal_x, nm.normal_y, nm.normal_z);
 
