@@ -2,11 +2,15 @@
     <!-- <arg name="vehicle_name"                    default="H01"/> -->
     <arg name="fixed_frame_id"                  default="world"/>
     <arg name="robot_frame_id"                  default="base_link"/>
-    <arg name="octomap_topic"                   default="merged_map"/>
-    <arg name="rough_octomap_topic"             default="merged_map"/>
+    <arg name="octomap_topic"                   default="octomap_binary"/>
+    <arg name="rough_octomap_topic"             default="octomap_full"/>
     <arg name="resolution"                      default="0.2"/>
     <arg name="range"                           default="5.0"/>
-    <arg name="enable_traversability"           default="true"/>
+    <arg name="enable_traversability"           default="false"/>
+
+    <arg name="enable_groundfinder"             default="true"/>
+    <arg name="enable_costmapgenerator"         default="true"/>
+    <arg name="enable_globalplanner"            default="true"/>
 
     <!-- <node pkg="marble_common" type="robot_tf2odom" name="tf2odomworld">
         <remap from="odometry_world"        to="odometry"/>
@@ -16,10 +20,59 @@
         <param name="parent_frame"     value="$(arg fixed_frame_id)"/>
         <param name="child_frame"      value="$(arg robot_frame_id)"/>
         <param name="odom_topic"       value="odometry"/>
-        <!-- <param name="rate"             value="20"/> -->
     </node>
 
-    <node pkg="msfm3d" type="costmap_generator" name="costmap_generator">
+    <group if="$(arg enable_groundfinder)">
+    <node pkg="ground_finder" type="traversability_mapping" name="traversability_mapping" unless="$(arg enable_traversability)" respawn="true">
+        <remap from="octomap_binary" to="$(arg octomap_topic)"/>
+        <remap from="edt" to="edt"/>
+        <!-- Params -->
+        <param name="update_rate" value="2.0"/>
+        <param name="min_cluster_size" value="50"/>
+            <!-- 0.95 filters out stairs in the EC Basement -->
+            <!-- 0.92 worked better in earlier sim testing -->
+        <!-- <param name="normal_z_threshold" value="0.92"/> -->
+        <param name="normal_z_threshold" value="0.86"/>
+        <param name="normal_curvature_threshold" value="2.0"/>
+        <param name="sensor_range" value="$(arg range)"/>
+        <param name="truncation_distance" value = "3.0"/>
+        <param name="inflate_distance" value = "0.2"/>
+        <param name="full_map_ticks" value = "60"/>
+        <!-- <param name="bbx_xy" value="8.0"/> -->
+        <!-- <param name="bbx_z" value ="3.0"/> -->
+        <param name="fixed_frame_id"              value="$(arg fixed_frame_id)"/>
+        <param name="robot_frame_id"              value="$(arg robot_frame_id)"/>
+        <param name="use_tf"                      value="true"/>
+        <!-- <param name="filter_holes"                value=""/>      -->
+    </node>
+    <node pkg="ground_finder" type="traversability_to_edt" name="traversability_mapping" if="$(arg enable_traversability)" respawn="true" output="log">
+        <!-- <remap from="octomap_binary" to="$(arg octomap_topic)"/> -->
+        <remap from="rough_octomap" to="$(arg rough_octomap_topic)"/>
+        <!-- <remap from="octomap" to="$(arg rough_octomap_topic)"/> -->
+        <remap from="edt" to="edt"/>
+        <!-- Params -->
+        <param name="update_rate" value="2.0"/>
+        <param name="min_cluster_size" value="50"/>
+            <!-- 0.95 filters out stairs in the EC Basement -->
+            <!-- 0.92 worked better in earlier sim testing -->
+        <!-- <param name="normal_z_threshold" value="0.92"/> -->
+        <param name="normal_z_threshold" value="0.86"/>
+        <param name="normal_curvature_threshold" value="2.0"/>
+        <param name="sensor_range" value="$(arg range)"/>
+        <param name="truncation_distance" value = "3.0"/>
+        <param name="inflate_distance" value = "0.2"/>
+        <param name="full_map_ticks" value = "60"/>
+        <!-- <param name="bbx_xy" value="8.0"/> -->
+        <!-- <param name="bbx_z" value ="3.0"/> -->
+        <param name="fixed_frame_id"              value="$(arg fixed_frame_id)"/>
+        <param name="robot_frame_id"              value="$(arg robot_frame_id)"/>
+        <param name="use_tf"                      value="true"/>
+        <!-- <param name="filter_holes"                value=""/>      -->
+    </node>
+    </group>
+
+    <group if="$(arg enable_costmapgenerator)">
+    <node pkg="msfm3d" type="costmap_generator" name="costmap_generator" respawn="true" output="log">
         <param name="fixedFrame" type="string" value="$(arg fixed_frame_id)"/>
         <!-- <param name="fixedFrame" type="string" value="world"/> -->
         <param name="rate" value="5.0"/>
@@ -29,6 +82,7 @@
         <remap from="esdf" to="edt"/>
         <!-- <remap from="esdf" to="voxblox_node/esdf_pointcloud"/> -->
         <remap from="octomap_binary" to="$(arg octomap_topic)"/>
+        <remap from="octomap_full" to="octomap_ignore"/>
         <!-- <remap from="traversability_map" to="rough_octomap_full"/> -->
     </node>
     <node pkg="nodelet" type="nodelet" name="pcl_manager_costmap" args="manager" />
@@ -53,55 +107,11 @@
         filter_limit_negative: False
         </rosparam>
     </node>
-    <node pkg="ground_finder" type="traversability_mapping" name="traversability_mapping" unless="$(arg enable_traversability)">
-        <remap from="octomap_binary" to="$(arg octomap_topic)"/>
-        <remap from="edt" to="edt"/>
-        <!-- Params -->
-        <param name="update_rate" value="2.0"/>
-        <param name="min_cluster_size" value="50"/>
-            <!-- 0.95 filters out stairs in the EC Basement -->
-            <!-- 0.92 worked better in earlier sim testing -->
-        <!-- <param name="normal_z_threshold" value="0.92"/> -->
-        <param name="normal_z_threshold" value="0.86"/>
-        <param name="normal_curvature_threshold" value="2.0"/>
-        <param name="sensor_range" value="$(arg range)"/>
-        <param name="truncation_distance" value = "3.0"/>
-        <param name="inflate_distance" value = "0.2"/>
-        <param name="full_map_ticks" value = "60"/>
-        <!-- <param name="bbx_xy" value="8.0"/> -->
-        <!-- <param name="bbx_z" value ="3.0"/> -->
-        <param name="fixed_frame_id"              value="$(arg fixed_frame_id)"/>
-        <param name="robot_frame_id"              value="$(arg robot_frame_id)"/>
-        <!-- <param name="use_tf"                      value=""/> -->
-        <!-- <param name="filter_holes"                value=""/>      -->
-    </node>
-    <node pkg="ground_finder" type="traversability_to_edt" name="traversability_mapping" if="$(arg enable_traversability)" output="screen">
-        <!-- <remap from="octomap_binary" to="$(arg octomap_topic)"/>
-        <remap from="rough_octomap_full" to="$(arg rough_octomap_topic)"/> -->
-        <remap from="octomap" to="$(arg rough_octomap_topic)"/>
-        <remap from="edt" to="edt"/>
-        <!-- Params -->
-        <param name="update_rate" value="2.0"/>
-        <param name="min_cluster_size" value="50"/>
-            <!-- 0.95 filters out stairs in the EC Basement -->
-            <!-- 0.92 worked better in earlier sim testing -->
-        <!-- <param name="normal_z_threshold" value="0.92"/> -->
-        <param name="normal_z_threshold" value="0.86"/>
-        <param name="normal_curvature_threshold" value="2.0"/>
-        <param name="sensor_range" value="$(arg range)"/>
-        <param name="truncation_distance" value = "3.0"/>
-        <param name="inflate_distance" value = "0.2"/>
-        <param name="full_map_ticks" value = "60"/>
-        <!-- <param name="bbx_xy" value="8.0"/> -->
-        <!-- <param name="bbx_z" value ="3.0"/> -->
-        <param name="fixed_frame_id"              value="$(arg fixed_frame_id)"/>
-        <param name="robot_frame_id"              value="$(arg robot_frame_id)"/>
-        <!-- <param name="use_tf"                      value=""/> -->
-        <!-- <param name="filter_holes"                value=""/>      -->
-    </node>
-    <node pkg="msfm3d" type="msfm3d" name="global_planning">
+    </group>
+    
+    <node pkg="msfm3d" type="msfm3d" name="global_planning" if="$(arg enable_globalplanner)" respawn="true" output="screen">
         <!-- Inputs (Subscribed Topic Names) -->
-        <remap from="octomap_binary" to="octomap_binary_crap"/>
+        <remap from="octomap_binary" to="octomap_binary"/>
         <remap from="odometry" to="odometry"/>
         <!-- Outputs (Published Topic Names) -->
         <!-- <remap from="nearest_frontier" to="nearest_frontier_2"/> -->
