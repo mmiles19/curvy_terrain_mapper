@@ -16,7 +16,7 @@
         <remap from="odometry_world"        to="odometry"/>
         <param name="base_link_frame"       value="$(arg robot_frame_id)"/>
     </node> -->
-    <node pkg="carplanner_msgs" type="tf2odom" name="tf2odom">
+    <node pkg="marble_common" type="robot_tf2odom" name="tf2odom">
         <param name="parent_frame"     value="$(arg fixed_frame_id)"/>
         <param name="child_frame"      value="$(arg robot_frame_id)"/>
         <param name="odom_topic"       value="odometry"/>

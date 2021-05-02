@@ -8,6 +8,7 @@
     <arg name="enable_inner_crop"               default="true"/>
     <arg name="enable_outer_crop"               default="false"/>
     <arg name="enable_planning"                 default="true"/>
+    <arg name="enable_monitoring"               default="true"/>
 
     <arg name="fixed_frame_id"                  default="$(arg vehicle_name)/map"/>
     <arg name="child_frame_id"                  default="$(arg vehicle_name)/base_link"/>
@@ -81,6 +82,11 @@
             <arg name="range"                           default="$(arg range)"/>
             <arg name="enable_traversability"           default="$(arg enable_traversability)" />
             <arg name="enable_traversability_sharing"   default="$(arg enable_traversability_sharing)" />
+        </include>
+
+        <include file="$(find status_monitor)/launch/status_monitor.launch" if="$(arg enable_monitoring)">
+            <arg name="param_file" value="$(find curvy_terrain_mapper)/cfg/TraversabilityStatusParams.yaml"/>
+            <arg name="rate"       value="2"/>
         </include>
     </group>
 

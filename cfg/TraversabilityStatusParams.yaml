@@ -1,0 +1,71 @@
+monitors:
+    - {
+        topic: "pico_flexx_left/points",
+        expected_hz: 4.0,
+        tolerance_hz: 2.0
+    } 
+    - {
+        topic: "pico_flexx_left/points/cost_norm_cloud",
+        expected_hz: 4.0,
+        tolerance_hz: 2.0
+    } 
+    - {
+        topic: "pico_flexx_right/points",
+        expected_hz: 4.0,
+        tolerance_hz: 2.0
+    } 
+    - {
+        topic: "pico_flexx_right/points/cost_norm_cloud",
+        expected_hz: 4.0,
+        tolerance_hz: 2.0
+    } 
+    - {
+        topic: "horiz/os_cloud_node/points",
+        expected_hz: 20.0,
+        tolerance_hz: 5.0
+    } 
+    - {
+        topic: "horiz/os_cloud_node/points/cost_norm_cloud",
+        expected_hz: 10.0,
+        tolerance_hz: 5.0
+    }
+    - {
+        topic: "octomap_in/concatenated",
+        expected_hz: 4.0,
+        tolerance_hz: 3.0
+    }
+    - {
+        topic: "octomap_in/voxfiltered",
+        expected_hz: 4.0,
+        tolerance_hz: 3.0
+    }
+    - {
+        topic: "octomap_in/inner_cropped",
+        expected_hz: 4.0,
+        tolerance_hz: 3.0
+    }
+    - {
+        topic: "octomap_in/outer_cropped",
+        expected_hz: 4.0,
+        tolerance_hz: 3.0
+    }
+    - {
+        topic: "octomap_in/unthrottled",
+        expected_hz: 4.0,
+        tolerance_hz: 3.0
+    }
+    - {
+        topic: "octomap_in",
+        expected_hz: 4.0,
+        tolerance_hz: 3.0
+    }
+    - {
+        topic: "octomap_full",
+        expected_hz: 4.0,
+        tolerance_hz: 3.0
+    }
+    - {
+        topic: "merged_map",
+        expected_hz: 4.0,
+        tolerance_hz: 3.0
+    }
