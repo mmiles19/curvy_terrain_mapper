@@ -66,7 +66,7 @@ inline void pubMainCloud(ros::Publisher* pub, PointCloudT cloud, std::string fix
     cloud_msg.header.frame_id = fixed_frame_id;
     cloud_msg.header.stamp = stamp;
     pub->publish(cloud_msg);
-    ros::spinOnce();
+    // ros::spinOnce();
 }
 
 // inline void pubCostmap(ros::Publisher* pub, std_msgs::Float64MultiArray map, float voxel_size, float std::string fixed_frame_id, ros::Time stamp=ros::Time(0))
@@ -143,7 +143,7 @@ inline void pubNormalCloud(ros::Publisher* pub, PointCloudT tcloud, NormalCloud 
         cloud_msg.colors.push_back(rgb_msg);
     }
     pub->publish(cloud_msg);
-    ros::spinOnce();
+    // ros::spinOnce();
 }
 
 inline void pubCurvature(ros::Publisher* pub, PointCloudT tcloud, NormalCloud ncloud, std::string fixed_frame_id, ros::Time stamp=ros::Time(0))
@@ -187,7 +187,7 @@ inline void pubCurvature(ros::Publisher* pub, PointCloudT tcloud, NormalCloud nc
     }
     // std::cout<<std::endl;
     pub->publish(cloud_msg);
-    ros::spinOnce();
+    // ros::spinOnce();
 }
 
 inline void pubRegions(ros::Publisher* pub, regions segments, std::string fixed_frame_id, ros::Time stamp=ros::Time(0))
@@ -225,7 +225,7 @@ inline void pubRegions(ros::Publisher* pub, regions segments, std::string fixed_
         }
     }
     pub->publish(cloud_msg);
-    ros::spinOnce();
+    // ros::spinOnce();
 }
 
 // inline void getTransformFromTree(std::string parent_frame_id, std::string child_frame_id, Eigen::Transformd* tform)

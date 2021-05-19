@@ -47,7 +47,8 @@ private:
 
     CurvyTerrainMapperParams params_;
 
-    bool busy;
+    // bool busy;
+    boost::mutex mutex_;
 
     // std::string config_filepath_;
     // YAML::Node config_;
@@ -72,8 +73,8 @@ public:
 
     CurvyTerrainMapper(ros::NodeHandle& nh, ros::NodeHandle& pnh) :
         m_nh(nh),
-        m_private_nh(pnh),
-        busy(false)
+        m_private_nh(pnh)//,
+        // busy(false)
     {
 
         input_sub = m_private_nh.subscribe("input_cloud", 1 ,&CurvyTerrainMapper::inputCB, this);
@@ -188,10 +189,12 @@ public:
         // ROS_INFO("Got input cloud.");
 
         if(!ros::ok()){ return; }
-        if(busy){ return; }
-        uint count;
+        // if(busy){ return; }
+        // uint count;
 
-        busy = true;
+        // busy = true;
+        
+        boost::mutex::scoped_lock lock(mutex_);
 
         stamp_ = input_msg.header.stamp;
         frame_ = input_msg.header.frame_id;
@@ -213,7 +216,7 @@ public:
         if (mainCloud->width*mainCloud->height==0)
         {
             ROS_WARN("Received empty cloud. Skipping.");
-            busy = false;
+            // busy = false;
             return;
         }
 
@@ -235,7 +238,7 @@ public:
         {
             if (!getTransformFromTree(listener, params_.fixed_frame_id, input_msg.header.frame_id, &T_fixed_input_mat, stamp_))
             {
-                busy = false;
+                // busy = false;
                 return;
             }
         }
@@ -315,7 +318,7 @@ public:
 
           if (segRegions.size()==0)
           {
-              busy = false;
+            //   busy = false;
               return;
           }
 
@@ -461,7 +464,7 @@ public:
             costcloud_msg.header.frame_id = params_.fixed_frame_id;
             costcloud_msg.header.stamp = stamp_;
             costcloud_pub_.publish(costcloud_msg);
-            ros::spinOnce();
+            // ros::spinOnce();
         }
         // pub cost norm cloud
         {
@@ -470,7 +473,7 @@ public:
             costcloud_msg.header.frame_id = params_.fixed_frame_id;
             costcloud_msg.header.stamp = stamp_;
             costnormcloud_pub_.publish(costcloud_msg);
-            ros::spinOnce();
+            // ros::spinOnce();
         }
         // // pub 3d costmap viz
         // {
@@ -563,7 +566,7 @@ public:
 
         ROS_INFO("Done publishing clouds");
 
-        busy = false;
+        // busy = false;
     }
 };
 

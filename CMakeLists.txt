@@ -25,7 +25,7 @@ if( NOT CMAKE_BUILD_TYPE )
 endif()
 
 generate_dynamic_reconfigure_options(
-  cfg/CurvyTerrainMapperConfig.cfg
+  cfg/CurvyTerrainMapper.cfg
 )
 
 #add_message_files(
