@@ -16,6 +16,11 @@ find_package(catkin REQUIRED
     tf_conversions
     tf
     dynamic_reconfigure
+
+    grid_map_ros
+    grid_map_core
+    grid_map_pcl
+    grid_map_msgs
 )
 
 if( NOT CMAKE_BUILD_TYPE )
@@ -77,4 +82,15 @@ target_link_libraries( curvy_terrain_mapper_node
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
   yaml-cpp
+)
+
+add_executable( grid_map_node
+  src/grid_map_node.cpp
+)
+# add_dependencies( curvy_terrain_mapper_node
+#   curvy_terrain_mapper_gencfg
+#   curvy_terrain_mapper_gencpp
+# )
+target_link_libraries( grid_map_node
+  ${catkin_LIBRARIES}
 )
