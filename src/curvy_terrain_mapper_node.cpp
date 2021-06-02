@@ -424,7 +424,7 @@ public:
                 if (params_.costmap.set_max_saturation_cost_to_max_cost) params_.costmap.max_saturation_cost = max_cost;
                 if (params_.costmap.set_min_saturation_cost_to_min_cost) params_.costmap.min_saturation_cost = min_cost;
                 newpt.intensity = std::min(std::max(rescale(pt.intensity, params_.costmap.min_saturation_cost, params_.costmap.max_saturation_cost,0.0f,1.0f),0.0f),1.0f);
-                if (!isfinite(newpt.intensity) || newpt.intensity<0.0 || newpt.intensity>1.0)
+                if (!std::isfinite(newpt.intensity) || newpt.intensity<0.0 || newpt.intensity>1.0)
                     continue;
 
                 newpt.normal_x = pt.normal_x;
