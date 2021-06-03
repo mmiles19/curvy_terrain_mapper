@@ -80,14 +80,12 @@
             <arg name="output_cloud_topic"              default="$(arg octomap_cloud_topic)"/>
             <arg name="octomap_resolution"              default="$(arg octomap_resolution)"/>
             <arg name="range"                           default="$(arg range)"/>
-            <arg name="enable_traversability"           default="$(arg enable_traversability)" />
-            <arg name="enable_traversability_sharing"   default="$(arg enable_traversability_sharing)" />
         </include>
 
-        <include file="$(find status_monitor)/launch/status_monitor.launch" if="$(arg enable_monitoring)">
+        <!-- <include file="$(find status_monitor)/launch/status_monitor.launch" if="$(arg enable_monitoring)">
             <arg name="param_file" value="$(find curvy_terrain_mapper)/cfg/TraversabilityStatusParams.yaml"/>
             <arg name="rate"       value="2"/>
-        </include>
+        </include> -->
     </group>
 
 </launch>

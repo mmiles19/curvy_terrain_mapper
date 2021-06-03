@@ -14,7 +14,7 @@
     <arg name="enable_voxfilter"                default="false" />
     <arg name="enable_inner_crop"               default="true"/>
     <arg name="enable_outer_crop"               default="false"/>
-    <arg name="enable_planning"                 default="true" />
+    <arg name="enable_planning"                 default="false" />
     <arg name="enable_monitoring"           default="true"/>
 
     <node pkg="rosbag" type="play" name="bag_player" output="screen" args="$(arg rosbag_args)" launch-prefix="bash -c 'sleep 10; $0 $@'" if="$(arg enable_rosbag)"/>
@@ -31,7 +31,7 @@
         <arg name="enable_monitoring"        value="$(arg enable_monitoring)"/>
     </include>
 
-    <param name="robot_description" command="$(find xacro)/xacro '$(find marble_common)/urdf/marble_Husky_cave_liosam.urdf.xacro' use_nominal_extrinsics:=true" />
+    <param name="robot_description" command="$(find xacro)/xacro '$(find marble_common)/urdf/marble_husky_cave_liosam.urdf.xacro' use_nominal_extrinsics:=true" />
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
         <remap from="robot_description" to="robot_description"/>
     </node>
