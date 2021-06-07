@@ -1,0 +1,20 @@
+<launch>
+
+    <arg name="enable_debug"    default="false"/>
+    <arg name="input_cloud_topic"    default="points"/>
+    <arg name="output_cloud_topic"    default="output"/>
+
+    <arg name="launch_prefix" default="gdb -ex run --args" if="$(eval arg('enable_debug'))"/>
+    <arg name="launch_prefix" default="" unless="$(eval arg('enable_debug'))"/>
+
+    <node pkg="curvy_terrain_mapper" type="grid_map_node" name="grid_map_node" output="screen" respawn="true" launch-prefix="$(arg launch_prefix)">
+        <remap from="~input" to="$(arg input_cloud_topic)"/>
+        <remap from="~output" to="$(arg output_cloud_topic)"/>
+    </node>
+
+    <!-- <arg name="rviz_name"     default="rviz"           if="$(eval ns=='')"/>
+    <arg name="rviz_name"     default="rviz_$(arg ns)"     unless="$(eval ns=='')"/>
+    <node pkg="rviz" type="rviz" name="$(arg rviz_name)" output="log" if="$(arg enable_rviz)"
+    args="-d $(find curvy_terrain_mapper)/curvy_terrain_mapper.rviz"/> -->
+
+</launch>
