@@ -16,6 +16,7 @@
 #include <visualization_msgs/MarkerArray.h>
 // #include <pcl_ros/point_cloud.h>
 // #include <pcl_ros/transforms.h>
+#include <pcl/point_types_conversion.h>
 #include <pcl_conversions/pcl_conversions.h>
 // #include <colormap/palettes.hpp>
 #include <tf/transform_listener.h>
@@ -23,11 +24,13 @@
 #include <yaml-cpp/yaml.h>
 
 typedef pcl::PointXYZ PointT;
+typedef pcl::PointXYZI PointTI;
 typedef pcl::PointNormal PointNT;
 typedef pcl::Normal Normal;
 typedef pcl::PointXYZRGB PointTC;
 
 typedef pcl::PointCloud<PointT> PointCloudT;
+typedef pcl::PointCloud<PointTI> PointCloudI;
 typedef pcl::PointCloud<PointNT> PointCloudN;
 typedef pcl::PointCloud<Normal> NormalCloud;
 typedef pcl::PointCloud<PointTC> PointCloudC;
@@ -101,7 +104,7 @@ inline void pubMainCloud(ros::Publisher* pub, PointCloudT cloud, std::string fix
 //     ros::spinOnce();
 // }
 
-inline void pubNormalCloud(ros::Publisher* pub, PointCloudT tcloud, NormalCloud ncloud, std::string fixed_frame_id, ros::Time stamp=ros::Time(0))
+inline void pubNormalMarkers(ros::Publisher* pub, PointCloudT tcloud, NormalCloud ncloud, std::string fixed_frame_id, ros::Time stamp=ros::Time(0))
 {
     if (tcloud.size()!=ncloud.size())
     {
@@ -144,6 +147,43 @@ inline void pubNormalCloud(ros::Publisher* pub, PointCloudT tcloud, NormalCloud 
     }
     pub->publish(cloud_msg);
     // ros::spinOnce();
+}
+
+inline void pubNormalCloud(ros::Publisher* pub, PointCloudT tcloud, NormalCloud ncloud, std::string fixed_frame_id, ros::Time stamp=ros::Time(0))
+{
+    if (tcloud.size()!=ncloud.size())
+    {
+        ROS_ERROR("Invalid cloud inputs");
+        return;
+    }
+
+    PointCloudC cloud;
+    sensor_msgs::PointCloud2 cloud_msg;
+
+    for(uint i=0; i<tcloud.points.size(); i++)
+    {
+        PointT pt = tcloud.points[i];
+        Normal nm = ncloud.points[i];
+
+        PointTC ptc;
+        ptc.x = pt.x;
+        ptc.y = pt.y;
+        ptc.z = pt.z;
+        ptc.r = abs((int)round(nm.normal_x*256));
+        ptc.g = abs((int)round(nm.normal_y*256));
+        ptc.b = abs((int)round(nm.normal_z*256));
+        // ptc.a = 1.f;
+        // ptc.intensity
+
+        // PointTI pti;
+        // pcl::PointXYZRGBtoXYZI(ptc, pti);
+
+        cloud.push_back(ptc);
+    }
+    pcl::toROSMsg(cloud, cloud_msg);
+    cloud_msg.header.frame_id = fixed_frame_id;
+    cloud_msg.header.stamp = stamp;
+    pub->publish(cloud_msg);
 }
 
 inline void pubCurvature(ros::Publisher* pub, PointCloudT tcloud, NormalCloud ncloud, std::string fixed_frame_id, ros::Time stamp=ros::Time(0))

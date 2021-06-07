@@ -56,8 +56,10 @@ private:
     ros::Time stamp_;
     std::string frame_;
     ros::Publisher main_cloud_pub_;
-    // ros::Publisher normal_cloud_pub_;
-    // ros::Publisher curvature_pub_;
+    // ros::Publisher normal_marker_pub_;
+    ros::Publisher normal_cloud_pub_;
+    // ros::Publisher curvature_marker_pub_;
+    ros::Publisher curvature_cloud_pub_;
     // ros::Publisher costmap_pub_;
     // ros::Publisher costmap3d_pub_;
     ros::Publisher seg_regions_pub_;
@@ -125,10 +127,12 @@ public:
         // params_.fixed_frame_id = config_["ros"]["fixed_frame_id"].as<std::string>();
 
         main_cloud_pub_ = m_private_nh.advertise<sensor_msgs::PointCloud2>("main_cloud",1);
-        // normal_cloud_pub_ = n.advertise<visualization_msgs::Marker>("normal_cloud",1);
-        // curvature_pub_ = n.advertise<visualization_msgs::Marker>("curvature",1);
-        // costmap_pub_ = n.advertise<visualization_msgs::Marker>("costmap",1);
-        // costmap3d_pub_ = n.advertise<visualization_msgs::Marker>("costmap3d",1);
+        // normal_marker_pub_ = m_private_nh.advertise<visualization_msgs::Marker>("normal_markers",1);
+        normal_cloud_pub_ = m_private_nh.advertise<sensor_msgs::PointCloud2>("normal_cloud",1);
+        // curvature_marker_pub_ = m_private_nh.advertise<visualization_msgs::Marker>("curvature_markers",1);
+        curvature_cloud_pub_ = m_private_nh.advertise<sensor_msgs::PointCloud2>("curvature_cloud",1);
+        // costmap_pub_ = m_private_nh.advertise<visualization_msgs::Marker>("costmap",1);
+        // costmap3d_pub_ = m_private_nh.advertise<visualization_msgs::Marker>("costmap3d",1);
         seg_regions_pub_ = m_private_nh.advertise<visualization_msgs::Marker>("segmented_regions", 1);
         costcloud_pub_ = m_private_nh.advertise<sensor_msgs::PointCloud2>("cost_cloud",1);
         costnormcloud_pub_ = m_private_nh.advertise<sensor_msgs::PointCloud2>("cost_norm_cloud",1);
@@ -255,8 +259,9 @@ public:
         ROS_INFO("Preanalysis took: %f",preAE-preAS);
 
         pubMainCloud(&main_cloud_pub_, *mainCloud, params_.fixed_frame_id, stamp_);
-        // pubNormalCloud(&normal_cloud_pub_, *mainCloud, *mainNormals, params_.fixed_frame_id, stamp_);
-        // pubCurvature(&curvature_pub_, *mainCloud, *mainNormals, params_.fixed_frame_id, stamp_);
+        // pubNormalMarkers&normal_marker_pub_, *mainCloud, *mainNormals, params_.fixed_frame_id, stamp_);
+        pubNormalCloud(&normal_cloud_pub_, *mainCloud, *mainNormals, params_.fixed_frame_id, stamp_);
+        pubCurvature(&curvature_cloud_pub_, *mainCloud, *mainNormals, params_.fixed_frame_id, stamp_);
 
         PointCloudT::Ptr currentCloud = mainCloud;
         NormalCloud::Ptr currentNormals = mainNormals;
