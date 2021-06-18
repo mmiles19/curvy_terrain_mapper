@@ -349,6 +349,7 @@ public:
         // double min_cost = 0.0, max_cost = 1.0;
         float curvature_gain = params_.costmap.curv_gain;
         float normal_gain = params_.costmap.normal_gain;
+        // float elevation_gain = 20.0;
 
         // PointCloudT::Ptr costCloud = mainCloud;
         // NormalCloud::Ptr costNormals = mainNormals;
@@ -389,6 +390,7 @@ public:
                 double cost = 0;
                 cost += normal_gain*pow(1-fabs(upVec.dot(nmVec)),3);
                 cost += curvature_gain*fabs(nm.curvature);
+                // cost += elevation_gain*fabs(nm.curvature);
                 // cost += fabs(curvature_gain*(cbrt(it->curvature)));
 
                 if (cost > max_cost) { max_cost = cost; }
