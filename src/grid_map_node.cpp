@@ -58,23 +58,14 @@ public:
   {
     ROS_INFO("Got cloud!");
     cloudUpdated=true;
-    
-    // I think there's an issue here, commented this out
     // pcl::PointCloud<pcl::PointXYZ>::Ptr input_cloud;
-    // pcl::fromROSMsg(input_msg, *input_cloud); // this is where it crashes
+    // pcl::fromROSMsg(input_msg, *input_cloud); // crashes
     
-    // must convert to a type that setInputCloud can use --> pcl::PointCloud<pcl::PointXYZ>::Ptr
-    // create the containers
-    pcl::PCLPointCloud2 cloudBlob;
+    // convert to a type that setInputCloud can use --> pcl::PointCloud<pcl::PointXYZ>::Ptr
+    pcl::PCLPointCloud2 cloudBlob; // create the containers
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-  
-    // Convert to PCL data type
-    pcl_conversions::toPCL(input_msg, cloudBlob);
-    //ROS_INFO("@ callback, just converted to PCLPointCloud2 (pcl_conversions::toPCL)");
-    // Convert to final type
-    pcl::fromPCLPointCloud2(cloudBlob, *cloud);
-    //ROS_INFO("@ callback, just converted to PointCloud::Ptr (pcl::fromPCLPointCloud2)");
-    
+    pcl_conversions::toPCL(input_msg, cloudBlob); // Convert to PCL2 msg
+    pcl::fromPCLPointCloud2(cloudBlob, *cloud);  // Convert to PCL class
     gridMapPclLoader.setInputCloud(cloud);
     //ROS_INFO("@ callback, sent converted msg to setInputCloud!");
   }
@@ -83,12 +74,12 @@ public:
     if (cloudUpdated) {
       ROS_INFO("Publishing cloud!");
       cloudUpdated=false;
+      
       gm::processPointcloud(&gridMapPclLoader, nh);
-      // grid_map_msgs::GridMap msg;
       grid_map::GridMap gridMap = gridMapPclLoader.getGridMap();
       gridMap.setFrameId(gm::getMapFrame(nh));
       sensor_msgs::PointCloud2 output_msg;
-      grid_map::GridMapRosConverter::toPointCloud(gridMap, "flat", output_msg);
+      grid_map::GridMapRosConverter::toPointCloud(gridMap, "elevation", output_msg); // modified layer to elevation
       outputPub.publish(output_msg);
       ROS_INFO("Done w publishing");
     }
