@@ -193,7 +193,7 @@ public:
         // uint count;
 
         // busy = true;
-        
+
         boost::mutex::scoped_lock lock(mutex_);
 
         stamp_ = input_msg.header.stamp;
@@ -254,7 +254,7 @@ public:
         double preAE = pcl::getTime();
         ROS_INFO("Preanalysis took: %f",preAE-preAS);
 
-        pubMainCloud(&main_cloud_pub_, *mainCloud, params_.fixed_frame_id, stamp_);
+        // pubMainCloud(&main_cloud_pub_, *mainCloud, params_.fixed_frame_id, stamp_);
         // pubNormalCloud(&normal_cloud_pub_, *mainCloud, *mainNormals, params_.fixed_frame_id, stamp_);
         // pubCurvature(&curvature_pub_, *mainCloud, *mainNormals, params_.fixed_frame_id, stamp_);
 
@@ -314,7 +314,7 @@ public:
           ROS_INFO("Segmentation found %d regions",segRegions.size());
           ROS_INFO("Segmentation took: %f",segE-segS);
 
-          pubRegions(&seg_regions_pub_,segRegions, params_.fixed_frame_id, stamp_);
+          // pubRegions(&seg_regions_pub_,segRegions, params_.fixed_frame_id, stamp_);
 
           if (segRegions.size()==0)
           {
@@ -458,14 +458,14 @@ public:
         // }
 
         // pub cost cloud
-        {
-            sensor_msgs::PointCloud2 costcloud_msg;
-            pcl::toROSMsg (costCloud, costcloud_msg);
-            costcloud_msg.header.frame_id = params_.fixed_frame_id;
-            costcloud_msg.header.stamp = stamp_;
-            costcloud_pub_.publish(costcloud_msg);
-            // ros::spinOnce();
-        }
+        // {
+        //     sensor_msgs::PointCloud2 costcloud_msg;
+        //     pcl::toROSMsg (costCloud, costcloud_msg);
+        //     costcloud_msg.header.frame_id = params_.fixed_frame_id;
+        //     costcloud_msg.header.stamp = stamp_;
+        //     costcloud_pub_.publish(costcloud_msg);
+        //     // ros::spinOnce();
+        // }
         // pub cost norm cloud
         {
             sensor_msgs::PointCloud2 costcloud_msg;
