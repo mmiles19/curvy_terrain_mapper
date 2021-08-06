@@ -113,9 +113,9 @@ inline void pubNormalCloud(ros::Publisher* pub, PointCloudT tcloud, NormalCloud 
     cloud_msg.header.stamp = stamp;
     cloud_msg.type = cloud_msg.POINTS;
     cloud_msg.action = cloud_msg.ADD;
-    cloud_msg.scale.x = 0.005;
-    cloud_msg.scale.y = 0.005;
-    cloud_msg.scale.z = 0.005;
+    cloud_msg.scale.x = 0.025;
+    cloud_msg.scale.y = 0.025;
+    cloud_msg.scale.z = 0.025;
     cloud_msg.lifetime = ros::Duration(0.0);
     for(uint i=0; i<tcloud.size(); i++)
     {
@@ -133,9 +133,15 @@ inline void pubNormalCloud(ros::Publisher* pub, PointCloudT tcloud, NormalCloud 
         // rgb_msg.r = nm.normal_z;
         // rgb_msg.g = nm.normal_x;
         // rgb_msg.b = nm.normal_y;
-        rgb_msg.r = abs(nm.normal_x);
-        rgb_msg.g = abs(nm.normal_y);
-        rgb_msg.b = abs(nm.normal_z);
+        Eigen::Vector3f upVec(0,0,1);
+        Eigen::Vector3f nmVec(nm.normal_x, nm.normal_y, nm.normal_z);   
+        RGBColor col = getRGBColor(pow(1-fabs(upVec.dot(nmVec)),3));
+        rgb_msg.r = col.r;
+        rgb_msg.g = col.g;
+        rgb_msg.b = col.b;
+        // rgb_msg.r = abs(nm.normal_x);
+        // rgb_msg.g = abs(nm.normal_y);
+        // rgb_msg.b = abs(nm.normal_z);
         // rgb_msg.r = ( (fabs(nm.normal_x)>fabs(nm.normal_y) && fabs(nm.normal_x)>fabs(nm.normal_z)) ? 1.0 : 0.0 );
         // rgb_msg.g = ( (fabs(nm.normal_y)>fabs(nm.normal_x) && fabs(nm.normal_y)>fabs(nm.normal_z)) ? 1.0 : 0.0 );
         // rgb_msg.b = ( (fabs(nm.normal_z)>fabs(nm.normal_x) && fabs(nm.normal_z)>fabs(nm.normal_y)) ? 1.0 : 0.0 );
@@ -158,9 +164,9 @@ inline void pubCurvature(ros::Publisher* pub, PointCloudT tcloud, NormalCloud nc
     cloud_msg.header.stamp = stamp;
     cloud_msg.type = cloud_msg.POINTS;
     cloud_msg.action = cloud_msg.ADD;
-    cloud_msg.scale.x = 0.005;
-    cloud_msg.scale.y = 0.005;
-    cloud_msg.scale.z = 0.005;
+    cloud_msg.scale.x = 0.025;
+    cloud_msg.scale.y = 0.025;
+    cloud_msg.scale.z = 0.025;
     cloud_msg.lifetime = ros::Duration(0.0);
     for(uint i=0; i<tcloud.size(); i++)
     {

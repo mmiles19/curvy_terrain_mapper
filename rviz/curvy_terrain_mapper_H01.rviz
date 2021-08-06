@@ -26,7 +26,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: EDT
+    SyncSource: OusterHCloud
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -110,7 +110,7 @@ Visualization Manager:
       Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 1881
+      Max Intensity: 1728
       Min Color: 0; 0; 0
       Min Intensity: 0
       Name: OusterHCloud
@@ -382,13 +382,13 @@ Visualization Manager:
       Use rainbow: false
       Value: false
     - Class: rviz/MarkerArray
-      Enabled: true
+      Enabled: false
       Marker Topic: /H01/merged_map_markers
       Name: mergedCostOctomap
       Namespaces:
-        map: true
+        {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/Axes
       Enabled: false
       Length: 0.15000000596046448
@@ -412,94 +412,9 @@ Visualization Manager:
         Expand Joint Details: false
         Expand Link Details: false
         Expand Tree: false
-        H01/base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        H01/cam_back_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        H01/cam_front_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        H01/cam_left_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        H01/cam_right_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        H01/front_left_wheel_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        H01/front_right_wheel_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        H01/horiz_ouster_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        H01/imu_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        H01/imu_viz_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        H01/left_radar_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        H01/pico_flexx_left_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        H01/pico_flexx_right_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        H01/picoflexx_mount_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        H01/radar_mount_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        H01/rear_left_wheel_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        H01/rear_right_wheel_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        H01/right_radar_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        H01/vert_ouster_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         Link Tree Style: Links in Alphabetic Order
-        laser:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
       Name: RobotModel
-      Robot Description: robot_description_liosam
+      Robot Description: H01/robot_description
       TF Prefix: ""
       Update Interval: 0
       Value: true
@@ -744,7 +659,7 @@ Visualization Manager:
       Marker Topic: /H01/lookahead_vec
       Name: LookaheadVec
       Namespaces:
-        "": true
+        {}
       Queue Size: 100
       Value: true
     - Alpha: 1
@@ -769,6 +684,22 @@ Visualization Manager:
       Voxel Alpha: 1
       Voxel Coloring: Z-Axis
       Voxel Rendering: Occupied Voxels
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /H01/horiz/os_cloud_node/curvy_terrain_mapper/curvature
+      Name: Curvature
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /H01/horiz/os_cloud_node/curvy_terrain_mapper/normal_cloud
+      Name: Normal
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -797,25 +728,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 7.497807025909424
+      Distance: 13.020838737487793
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: -0.019576311111450195
+        Y: -0.08717797696590424
+        Z: 2.86102294921875e-6
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.149795651435852
+      Pitch: 0.6897971034049988
       Target Frame: H01/base_link
       Value: ThirdPersonFollower (rviz)
-      Yaw: 2.4554028511047363
+      Yaw: 2.898639440536499
     Saved: ~
 Window Geometry:
   Displays:
