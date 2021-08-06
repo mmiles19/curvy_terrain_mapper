@@ -1,12 +1,13 @@
 Panels:
   - Class: rviz/Displays
-    Help Height: 165
+    Help Height: 70
     Name: Displays
     Property Tree Widget:
       Expanded:
         - /Global Options1
-      Splitter Ratio: 0.6647058725357056
-    Tree Height: 705
+        - /TF1/Frames1
+      Splitter Ratio: 0.44999998807907104
+    Tree Height: 1221
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -25,7 +26,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: OusterHCloud
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -33,10 +34,10 @@ Toolbars:
 Visualization Manager:
   Class: ""
   Displays:
-    - Alpha: 0.5
+    - Alpha: 0.20000000298023224
       Cell Size: 1
       Class: rviz/Grid
-      Color: 255; 255; 255
+      Color: 160; 160; 164
       Enabled: true
       Line Style:
         Line Width: 0.029999999329447746
@@ -48,7 +49,7 @@ Visualization Manager:
         Y: 0
         Z: 0
       Plane: XY
-      Plane Cell Count: 100
+      Plane Cell Count: 1000
       Reference Frame: <Fixed Frame>
       Value: true
     - Alpha: 0.20000000298023224
@@ -91,179 +92,44 @@ Visualization Manager:
       Enabled: true
       Length: 100
       Name: Axes
-      Radius: 0.0020000000949949026
+      Radius: 0.009999999776482582
       Reference Frame: <Fixed Frame>
       Value: true
-    - Class: rviz/Axes
-      Enabled: true
-      Length: 0.3499999940395355
-      Name: BaseAxes
-      Radius: 0.05000000074505806
-      Reference Frame: D01/base_link
-      Value: true
-    - Class: rviz/Axes
-      Enabled: true
-      Length: 0.15000000596046448
-      Name: CamAxes
-      Radius: 0.05000000074505806
-      Reference Frame: D01/base_link/camera_down_optical
-      Value: true
-    - Class: rough_octomap/RoughOccupancyGrid
-      Enabled: true
-      Max. Height Display: 3.4028234663852886e+38
-      Max. Octree Depth: 16
-      Min. Height Display: -3.4028234663852886e+38
-      Name: RoughOccupancyGrid
-      Octomap Topic: /D01/merged_map
-      Queue Size: 5
-      Value: true
-      Voxel Alpha: 1
-      Voxel Coloring: Cell Roughness
-      Voxel Rendering: Occupied Voxels
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
+        Max Value: 0.6404517292976379
+        Min Value: -0.20892168581485748
         Value: true
       Axis: Z
       Channel Name: intensity
       Class: rviz/PointCloud2
       Color: 255; 255; 255
       Color Transformer: Intensity
-      Decay Time: 0.10000000149011612
-      Enabled: true
+      Decay Time: 0
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 1
+      Max Intensity: 1586
       Min Color: 0; 0; 0
-      Min Intensity: 5.218667524786724e-7
-      Name: OctomapIn
+      Min Intensity: 0
+      Name: OusterHCloud
       Position Transformer: XYZ
       Queue Size: 10
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.019999999552965164
       Style: Flat Squares
-      Topic: /D01/octomap_in
-      Unreliable: false
-      Use Fixed Frame: true
-      Use rainbow: false
-      Value: true
-    - Class: rviz/MarkerArray
-      Enabled: false
-      Marker Topic: /D01/merged_map_markers
-      Name: OccMarkers
-      Namespaces:
-        {}
-      Queue Size: 100
-      Value: false
-    - Class: rviz/MarkerArray
-      Enabled: false
-      Marker Topic: /D01/trav_markers
-      Name: TravMarkers
-      Namespaces:
-        {}
-      Queue Size: 100
-      Value: false
-    - Alpha: 1
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz/PointCloud2
-      Color: 255; 255; 255
-      Color Transformer: ""
-      Decay Time: 0
-      Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Max Intensity: 4096
-      Min Color: 0; 0; 0
-      Min Intensity: 0
-      Name: StairPoints
-      Position Transformer: ""
-      Queue Size: 10
-      Selectable: true
-      Size (Pixels): 3
-      Size (m): 0.009999999776482582
-      Style: Flat Squares
-      Topic: /D01/stairs/mixed
+      Topic: /D01/horiz/os_cloud_node/points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
-    - Alpha: 1
-      Buffer Length: 1
-      Class: rviz/Path
-      Color: 204; 41; 204
-      Enabled: true
-      Head Diameter: 0.30000001192092896
-      Head Length: 0.20000000298023224
-      Length: 0.30000001192092896
-      Line Style: Billboards
-      Line Width: 0.029999999329447746
-      Name: PlannerPath
-      Offset:
-        X: 0
-        Y: 0
-        Z: 0.30000001192092896
-      Pose Color: 255; 85; 255
-      Pose Style: None
-      Radius: 0.029999999329447746
-      Shaft Diameter: 0.10000000149011612
-      Shaft Length: 0.10000000149011612
-      Topic: /D01/planned_path
-      Unreliable: false
-      Value: true
-    - Class: rviz/MarkerArray
-      Enabled: true
-      Marker Topic: /D01/scan_plan_node/viz_out
-      Name: PlannerGraph
-      Namespaces:
-        {}
-      Queue Size: 100
-      Value: true
-    - Alpha: 1
-      Arrow Length: 0.30000001192092896
-      Axes Length: 0.30000001192092896
-      Axes Radius: 0.009999999776482582
-      Class: rviz/PoseArray
-      Color: 255; 25; 0
-      Enabled: false
-      Head Length: 0.07000000029802322
-      Head Radius: 0.029999999329447746
-      Name: PlannerFrontiers
-      Shaft Length: 0.23000000417232513
-      Shaft Radius: 0.009999999776482582
-      Shape: Arrow (Flat)
-      Topic: /D01/scan_plan_node/frontiers_out
-      Unreliable: false
       Value: false
-    - Alpha: 1
-      Class: rviz/RobotModel
-      Collision Enabled: true
-      Enabled: true
-      Links:
-        All Links Enabled: true
-        Expand Joint Details: false
-        Expand Link Details: false
-        Expand Tree: false
-        Link Tree Style: Links in Alphabetic Order
-      Name: RobotModel
-      Robot Description: /D01/robot_description
-      TF Prefix: ""
-      Update Interval: 0
-      Value: true
-      Visual Enabled: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
+        Max Value: 0.6404517292976379
+        Min Value: -0.20892168581485748
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -274,17 +140,17 @@ Visualization Manager:
       Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 4096
+      Max Intensity: 441
       Min Color: 0; 0; 0
       Min Intensity: 0
-      Name: PointCloud2
+      Name: OusterVCloud
       Position Transformer: XYZ
       Queue Size: 10
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.009999999776482582
       Style: Flat Squares
-      Topic: /spot/depth/frontleft/points_processed
+      Topic: /D01/vert/os1_cloud_node/points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -292,8 +158,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
+        Max Value: 0.6404517292976379
+        Min Value: -0.20892168581485748
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -304,17 +170,17 @@ Visualization Manager:
       Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 4096
+      Max Intensity: 304
       Min Color: 0; 0; 0
-      Min Intensity: 0
-      Name: PointCloud2
+      Min Intensity: 2
+      Name: PicoLCloud
       Position Transformer: XYZ
       Queue Size: 10
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.009999999776482582
       Style: Flat Squares
-      Topic: /spot/depth/frontright/points_processed
+      Topic: /D01/pico_flexx_left/points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -322,8 +188,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
+        Max Value: 0.6404517292976379
+        Min Value: -0.20892168581485748
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -334,10 +200,40 @@ Visualization Manager:
       Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 1636
+      Max Intensity: 439
       Min Color: 0; 0; 0
-      Min Intensity: 0
-      Name: PointCloud2
+      Min Intensity: 2
+      Name: PicoRCloud
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic: /D01/pico_flexx_right/points
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 3.363138437271118
+        Min Value: -0.824247419834137
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: AxisColor
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 707
+      Min Color: 0; 0; 0
+      Min Intensity: 3
+      Name: wholeCloud
       Position Transformer: XYZ
       Queue Size: 10
       Selectable: true
@@ -349,11 +245,499 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 3.4413297176361084
+        Min Value: -0.7964410781860352
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: AxisColor
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 707
+      Min Color: 0; 0; 0
+      Min Intensity: 3
+      Name: MainCloud
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic: /D01/horiz/os_cloud_node/points/main_cloud
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: false
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 1
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: costNormCloud
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.10000000149011612
+      Style: Flat Squares
+      Topic: /D01/octomap_in/cost_norm_cloud/cropped2
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: false
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 6.877803802490234
+      Min Color: 0; 0; 0
+      Min Intensity: 0.0002073290233965963
+      Name: costCloud
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.05000000074505806
+      Style: Flat Squares
+      Topic: /D01/octomap_in/cost_cloud
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: false
+      Value: false
+    - Class: rviz/MarkerArray
+      Enabled: false
+      Marker Topic: /D01/merged_map_markers
+      Name: costOctomap
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: false
+    - Class: rviz/MarkerArray
+      Enabled: false
+      Marker Topic: /D01/trav_markers
+      Name: costNormText
+      Namespaces:
+        {}
+      Queue Size: 1
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: false
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 1
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: costOctoCenters
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.10000000149011612
+      Style: Flat Squares
+      Topic: /D01/octomap_point_cloud_centers
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: false
+      Value: false
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /D01/merged_map_markers
+      Name: mergedCostOctomap
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Axes
+      Enabled: false
+      Length: 0.15000000596046448
+      Name: CamAxes
+      Radius: 0.05000000074505806
+      Reference Frame: X1/base_link/camera_down_optical
+      Value: false
+    - Class: rviz/Axes
+      Enabled: true
+      Length: 0.3499999940395355
+      Name: BaseAxes
+      Radius: 0.05000000074505806
+      Reference Frame: D01/base_link
+      Value: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled:
+          {}
+        D01/base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        D01/cam_front_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        D01/cam_left_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        D01/cam_right_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        D01/horiz_ouster_sensor:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        D01/imu_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        D01/imu_viz_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        D01/planning_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+      Name: RobotModel
+      Robot Description: /D01/robot_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Class: rviz/TF
+      Enabled: false
+      Frame Timeout: 15
+      Frames:
+        All Enabled: false
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        {}
+      Update Interval: 0
+      Value: false
+    - Class: octomap_rviz_plugin/RoughOccupancyGrid
+      Enabled: false
+      Name: RoughOccupancyGrid
+    - Class: octomap_rviz_plugin/OccupancyGrid
+      Enabled: false
+      Max. Height Display: 3.4028234663852886e+38
+      Max. Octree Depth: 16
+      Min. Height Display: -3.4028234663852886e+38
+      Name: OccupancyGrid
+      Octomap Topic: /D01/octomap_full
+      Queue Size: 5
+      Value: false
+      Voxel Alpha: 1
+      Voxel Coloring: Z-Axis
+      Voxel Rendering: Occupied Voxels
+    - Alpha: 0.5
+      Autocompute Intensity Bounds: false
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 100
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: EDT
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.15000000596046448
+      Style: Boxes
+      Topic: /D01/edt
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Alpha: 0.5
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 5.699999809265137
+        Min Value: 2.0999999046325684
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: AxisColor
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: Ground
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.20000000298023224
+      Style: Boxes
+      Topic: /D01/ground
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Alpha: 0.5
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 173; 127; 168
+      Color Transformer: FlatColor
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: Frontier
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.20000000298023224
+      Style: Boxes
+      Topic: /D01/frontier
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 25; 255; 0
+      Max Intensity: 4
+      Min Color: 239; 41; 41
+      Min Intensity: 0
+      Name: CostMap
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.02500000037252903
+      Style: Flat Squares
+      Topic: /D01/cost_map
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 26463
+      Min Color: 0; 0; 0
+      Min Intensity: 1
+      Name: ReachGrid
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.02500000037252903
+      Style: Flat Squares
+      Topic: /D01/reach_grid
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 200; 10; 10
+      Enabled: true
+      Head Diameter: 0.30000001192092896
+      Head Length: 0.20000000298023224
+      Length: 0.30000001192092896
+      Line Style: Billboards
+      Line Width: 0.10000000149011612
+      Name: PlannedPath
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0.20000000298023224
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.029999999329447746
+      Shaft Diameter: 0.10000000149011612
+      Shaft Length: 0.10000000149011612
+      Topic: /D01/planned_path
+      Unreliable: true
+      Value: true
+    - Alpha: 1
+      Class: rviz/PointStamped
+      Color: 204; 41; 204
+      Enabled: true
+      History Length: 1
+      Name: PlannedPathGoal
+      Radius: 0.20000000298023224
+      Topic: /D01/nearest_frontier
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 25; 255; 0
+      Enabled: false
+      Head Diameter: 0.30000001192092896
+      Head Length: 0.20000000298023224
+      Length: 0.30000001192092896
+      Line Style: Billboards
+      Line Width: 0.05000000074505806
+      Name: MAPath
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0.10000000149011612
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.029999999329447746
+      Shaft Diameter: 0.10000000149011612
+      Shaft Length: 0.10000000149011612
+      Topic: /D01/planned_path
+      Unreliable: false
+      Value: false
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /D01/lookahead_vec
+      Name: LookaheadVec
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Alpha: 1
+      Class: rviz/PointStamped
+      Color: 10; 10; 250
+      Enabled: true
+      History Length: 1
+      Name: LookaheadPoint
+      Radius: 0.20000000298023224
+      Topic: /D01/lookahead_point
+      Unreliable: false
+      Value: true
+    - Class: octomap_rviz_plugin/OccupancyGrid
+      Enabled: true
+      Max. Height Display: 3.4028234663852886e+38
+      Max. Octree Depth: 16
+      Min. Height Display: -3.4028234663852886e+38
+      Name: OccupancyGrid
+      Octomap Topic: /merged_map_full
+      Queue Size: 5
+      Value: true
+      Voxel Alpha: 1
+      Voxel Coloring: Z-Axis
+      Voxel Rendering: Occupied Voxels
+    - Class: rviz/Marker
+      Enabled: false
+      Marker Topic: /D01/horiz/os_cloud_node/curvy_terrain_mapper/curvature
+      Name: Curvature
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: false
+    - Class: rviz/Marker
+      Enabled: false
+      Marker Topic: /D01/horiz/os_cloud_node/curvy_terrain_mapper/normal_cloud
+      Name: Normal
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: false
   Enabled: true
   Global Options:
-    Background Color: 136; 138; 133
+    Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: world
+    Fixed Frame: D01/map
     Frame Rate: 30
   Name: root
   Tools:
@@ -376,34 +760,34 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Class: rviz/XYOrbit
-      Distance: 10
+      Class: rviz/ThirdPersonFollower
+      Distance: 11.427340507507324
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: -0.019576311111450195
+        Y: -0.08717797696590424
+        Z: 2.86102294921875e-6
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.2603982090950012
+      Pitch: 0.9147969484329224
       Target Frame: D01/base_link
-      Value: XYOrbit (rviz)
-      Yaw: 3.0804004669189453
+      Value: ThirdPersonFollower (rviz)
+      Yaw: 3.218637704849243
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1050
+  Height: 1878
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd000000040000000000000156000003c0fc020000000afb0000001200530065006c0065006300740069006f006e000000003d0000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afc0000003d000003c0000000e60100001cfa000000000100000002fb000000100044006900730070006c0061007900730100000000000002940000015600fffffffb0000000a005600690065007700730100000000ffffffff0000010000fffffffb0000000a0049006d00610067006501000005550000020f0000000000000000fb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d006100670065000000047a000002ea00000000000000000000000100000478000006f6fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0049006d00610067006500000003f0000003780000000000000000fb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000073d0000005afc0100000002fb0000000800540069006d006500000000000000073d000002eb00fffffffb0000000800540069006d0065010000000000000450000000000000000000000624000003c000000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000004000000000000015600000697fc020000000bfb0000001200530065006c0065006300740069006f006e000000003d0000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d00000548000000c900fffffffb0000000a00560069006500770073010000058b00000149000000a400fffffffb0000000a0049006d006100670065000000006e000006f60000000000000000fb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d006100670065000000047a000002ea00000000000000000000000100000478000006f6fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0049006d00610067006500000003f0000003780000000000000000fb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000005fb0000000a00560069006500770073030000004e00000080000002e100000197fb0000001800520069006700680074002000430061006d0065007200610000000000ffffffff0000000000000000fb00000016004c006500660074002000430061006d0065007200610000000000ffffffff0000000000000000fb00000016004200610063006b002000430061006d0065007200610000000000ffffffff0000000000000000fb0000001800460072006f006e0074002000430061006d0065007200610000000000ffffffff000000000000000000000003000007d40000005ffc0100000002fb0000000800540069006d00650100000000000007d40000026c00fffffffb0000000800540069006d00650100000000000004500000000000000000000006780000069700000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -412,6 +796,6 @@ Window Geometry:
     collapsed: false
   Views:
     collapsed: false
-  Width: 1920
-  X: 2560
-  Y: 552
+  Width: 2004
+  X: 64
+  Y: 25
