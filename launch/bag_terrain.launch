@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+
+<launch>
+	<!-- <arg name="record_filepath" default="/media/data/marble_bagging"/> -->
+	<arg name="record_filepath" default="/home/marble/bags/"/>
+
+  <arg name="record_outputs"        default="false"/>
+  <arg name="record_tfstatic"       default="true"/>
+  <arg name="record_tf"             default="true"/>
+  <arg name="record_points"         default="true"/>
+
+  <arg name="vehicle"               default="H02"/>
+  <arg name="split_size"            default="100000"/> <!-- 100000 -->
+  <arg name="num_splits"            default="7"/>
+
+  <node pkg="rosbag" type="record" name="$(arg vehicle)_outputs" if="$(arg record_outputs)" args="--split --size=$(arg split_size) -o $(arg record_filepath)/$(arg vehicle)_outputs
+    /$(arg vehicle)/concatenated_points
+    /$(arg vehicle)/terrain_points 
+    /$(arg vehicle)/stair_points   
+    /$(arg vehicle)/merged_map    
+    /$(arg vehicle)/planned_path
+  "/>
+
+  <node pkg="rosbag" type="record" name="$(arg vehicle)_tf_static" if="$(arg record_tfstatic)" args="record --split --size=$(arg split_size) -o $(arg record_filepath)/$(arg vehicle)_tf_static
+    /tf_static
+
+  "/>
+
+  <node pkg="rosbag" type="record" name="$(arg vehicle)_tf" if="$(arg record_tf)" args="record --split --size=$(arg split_size) -o $(arg record_filepath)/$(arg vehicle)_tf
+    /tf
+  "/>
+
+  <node pkg="rosbag" type="record" name="$(arg vehicle)_points" if="$(arg record_points)" args="record --split --size=$(arg split_size) -o $(arg record_filepath)/$(arg vehicle)_ouster_imu
+    /$(arg vehicle)/horiz/os_cloud_node/points
+    /$(arg vehicle)/vert/os_cloud_node/points
+
+    /$(arg vehicle)/pico_flexx_right/points
+    /$(arg vehicle)/pico_flexx_left/points
+
+    /$(arg vehicle)/spot/depth/frontleft/points
+    /$(arg vehicle)/spot/depth/frontright/points
+    /$(arg vehicle)/spot/depth/left/points
+    /$(arg vehicle)/spot/depth/right/points
+    /$(arg vehicle)/spot/depth/back/points
+  "/>
+
+</launch>
