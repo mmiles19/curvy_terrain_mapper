@@ -9,7 +9,7 @@
   <arg name="record_tf"             default="true"/>
   <arg name="record_points"         default="true"/>
 
-  <arg name="vehicle"               default="H02"/>
+  <arg name="vehicle"               default="D01"/>
   <arg name="split_size"            default="100000"/> <!-- 100000 -->
   <arg name="num_splits"            default="7"/>
 
@@ -21,7 +21,7 @@
     /$(arg vehicle)/planned_path
   "/>
 
-  <node pkg="rosbag" type="record" name="$(arg vehicle)_tf_static" if="$(arg record_tfstatic)" args="record --split --size=$(arg split_size) -o $(arg record_filepath)/$(arg vehicle)_tf_static
+  <node pkg="rosbag" type="record" name="$(arg vehicle)_tf_static" if="$(arg record_tfstatic)" args="record --split --size=$(arg split_size) -o $(arg record_filepath)/$(arg vehicle)_tfstatic
     /tf_static
 
   "/>
@@ -30,7 +30,7 @@
     /tf
   "/>
 
-  <node pkg="rosbag" type="record" name="$(arg vehicle)_points" if="$(arg record_points)" args="record --split --size=$(arg split_size) -o $(arg record_filepath)/$(arg vehicle)_ouster_imu
+  <node pkg="rosbag" type="record" name="$(arg vehicle)_points" if="$(arg record_points)" args="record --split --size=$(arg split_size) -o $(arg record_filepath)/$(arg vehicle)_points
     /$(arg vehicle)/horiz/os_cloud_node/points
     /$(arg vehicle)/vert/os_cloud_node/points
 
